@@ -6,6 +6,7 @@ public class ImageIOUtils {
 
     private static IOHelper m_bufferedImageHelper;
     private static ScaleHelper m_defaultScaleHelper;
+    private static ConversionHelper m_defaultConverter;
 
     public static IOHelper getIOHelper() {
         synchronized (ImageIOUtils.class) {
@@ -31,6 +32,19 @@ public class ImageIOUtils {
 
     public static ScaleHelper getFreshScaleHelper(Interpolation interpolation) {
         return new ScaleHelper(interpolation);
+    }
+
+    public static ConversionHelper getConverterHelper() {
+        synchronized (ImageIOUtils.class) {
+            if (m_defaultConverter == null) {
+                m_defaultConverter = getFreshConverterHelper();
+            }
+        }
+        return m_defaultConverter;
+    }
+
+    public static ConversionHelper getFreshConverterHelper() {
+        return new ConversionHelper();
     }
 
 
