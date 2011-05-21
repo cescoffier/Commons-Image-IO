@@ -12,6 +12,7 @@ import java.util.Iterator;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
 
 public class IOHelper {
@@ -30,6 +31,61 @@ public class IOHelper {
             throw new IOException("The input stream is null");
         }
         return ImageIO.read(is);
+    }
+
+    public Format getFormat(byte[] bytes) throws IOException {
+        InputStream is = new ByteArrayInputStream(bytes);
+        String v = getFormatName(is);
+        closeQuietly(is);
+        if (v != null) {
+            return Format.getFormatByExtension(v);
+        } else {
+            throw new IOException("Cannot extract format");
+        }
+    }
+
+    public Format getFormat(File file) throws IOException {
+        String v = getFormatName(file);
+        if (v != null) {
+            return Format.getFormatByExtension(v);
+        } else {
+            throw new IOException("Cannot extract format from " + file.getAbsolutePath());
+        }
+    }
+
+    public Format getFormat(InputStream is) throws IOException {
+        String v = getFormatName(is);
+        if (v != null) {
+            return Format.getFormatByExtension(v);
+        } else {
+            throw new IOException("Cannot extract format from input stream");
+        }
+    }
+
+    private static String getFormatName(Object o) {
+        try {
+            // Create an image input stream on the image
+            ImageInputStream iis = ImageIO.createImageInputStream(o);
+
+            // Find all image readers that recognize the image format
+            Iterator<ImageReader> iter = ImageIO.getImageReaders(iis);
+            if (!iter.hasNext()) {
+                // No readers found
+                return null;
+            }
+
+            // Use the first reader
+            ImageReader reader = (ImageReader)iter.next();
+
+            // Close stream
+            iis.close();
+
+            // Return the format name
+            return reader.getFormatName();
+        } catch (IOException e) {
+        }
+        // The image could not be read
+        return null;
     }
 
     public BufferedImage read(byte[] bytes) throws IOException {
