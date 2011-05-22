@@ -313,8 +313,6 @@ public class ImageMetadata {
         } else {
             m_localization = null;
         }
-
-        System.out.println(m_metadata);
     }
 
     public ImageMetadata(byte[] bytes) throws IOException {
