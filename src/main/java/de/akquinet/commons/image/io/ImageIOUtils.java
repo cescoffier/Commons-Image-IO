@@ -7,6 +7,7 @@ public class ImageIOUtils {
     private static IOHelper m_bufferedImageHelper;
     private static ScaleHelper m_defaultScaleHelper;
     private static ConversionHelper m_defaultConverter;
+    private static ManipulationHelper m_defaultManipulator;
 
     public static IOHelper getIOHelper() {
         synchronized (ImageIOUtils.class) {
@@ -45,6 +46,19 @@ public class ImageIOUtils {
 
     public static ConversionHelper getFreshConverterHelper() {
         return new ConversionHelper();
+    }
+
+    public static ManipulationHelper getFreshManipulationHelper() {
+        return new ManipulationHelper();
+    }
+
+    public static ManipulationHelper getManipulationHelper() {
+        synchronized (ImageIOUtils.class) {
+            if (m_defaultManipulator == null) {
+                m_defaultManipulator = getFreshManipulationHelper();
+            }
+        }
+        return m_defaultManipulator;
     }
 
 
