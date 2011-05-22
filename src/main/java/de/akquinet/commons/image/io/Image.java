@@ -18,6 +18,20 @@ public class Image {
 
     private ImageMetadata m_metadata;
 
+    public Image(BufferedImage img, Format format) throws IOException {
+        if (img == null) {
+            throw new IOException("Cannot read image : the buffered image cannot be null");
+        }
+
+        if (format == null) {
+            throw new IOException("Cannot read image : the format cannot be null");
+        }
+
+        m_bufferedImage = img;
+        m_format = format;
+
+        m_file = null;
+    }
 
     public Image(InputStream is) throws IOException {
         if (is == null) {
