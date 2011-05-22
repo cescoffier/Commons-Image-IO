@@ -1,12 +1,27 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>5</version>
+    </parent>
+
     <groupId>de.akquinet.commons.imageio</groupId>
     <artifactId>commons-image-io</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <name>akquinet commons ~ Image IO</name>
     <description>A library simplifying the usage of image.io</description>
     <inceptionYear>2011</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
     <scm>
         <connection>git@edge.spree.de:ats-bilderverwaltung/commons-image-io.git</connection>
         <developerConnection>git@edge.spree.de:ats-bilderverwaltung/commons-image-io.git</developerConnection>
@@ -118,4 +133,20 @@
             <version>2.0.1</version>
         </dependency>
     </dependencies>
+
+    <distributionManagement>
+        <repository>
+            <id>${repo.releases.id}</id>
+            <name>${repo.releases.name}</name>
+            <url>${repo.releases.url}</url>
+            <uniqueVersion>false</uniqueVersion>
+        </repository>
+
+        <snapshotRepository>
+            <id>${repo.snapshots.id}</id>
+            <name>${repo.snapshots.name}</name>
+            <url>${repo.snapshots.url}</url>
+            <uniqueVersion>false</uniqueVersion>
+        </snapshotRepository>
+    </distributionManagement>
 </project>
