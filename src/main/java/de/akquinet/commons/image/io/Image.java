@@ -10,7 +10,7 @@ import org.apache.commons.io.IOUtils;
 
 public class Image {
 
-    private final BufferedImage m_bufferedImage;
+    private BufferedImage m_bufferedImage;
 
     private final Format m_format;
 
@@ -58,7 +58,7 @@ public class Image {
         m_file = null;
     }
 
-    public BufferedImage getBufferedImage() {
+    public synchronized BufferedImage getBufferedImage() {
         return m_bufferedImage;
     }
 
@@ -66,36 +66,36 @@ public class Image {
         return m_format;
     }
 
-    public byte[] getBytes() throws IOException {
+    public synchronized byte[] getBytes() throws IOException {
         return getBytes(m_format);
     }
 
-    public byte[] getBytes(Format format) throws IOException {
+    public synchronized byte[] getBytes(Format format) throws IOException {
         return ImageIOUtils.getIOHelper().getBytes(m_bufferedImage, format);
     }
 
-    public void write(File out) throws IOException {
+    public synchronized void write(File out) throws IOException {
         ImageIOUtils.getIOHelper().write(m_bufferedImage, out, m_format);
     }
 
-    public void write(OutputStream out) throws IOException {
+    public synchronized void write(OutputStream out) throws IOException {
         write(out, m_format);
     }
 
-    public void write(File out, Format format) throws IOException {
+    public synchronized void write(File out, Format format) throws IOException {
         ImageIOUtils.getIOHelper().write(m_bufferedImage, out, format);
     }
 
-    public void write(OutputStream out, Format format) throws IOException {
+    public synchronized void write(OutputStream out, Format format) throws IOException {
         byte[] bytes = ImageIOUtils.getIOHelper().getBytes(m_bufferedImage, format);
         out.write(bytes);
     }
 
-    public int getWidth() {
+    public synchronized int getWidth() {
         return m_bufferedImage.getWidth();
     }
 
-    public int getHeight() {
+    public synchronized int getHeight() {
         return m_bufferedImage.getHeight();
     }
 
@@ -111,8 +111,14 @@ public class Image {
         return m_metadata;
     }
 
-    public void scale(float ratio) {
-        ImageIOUtils.getScaleHelper().scale(m_bufferedImage, ratio);
+    public synchronized void scale(float ratio) {
+        m_bufferedImage = ImageIOUtils.getScaleHelper().scale(m_bufferedImage, ratio);
+        m_metadata = null; // Must be recomputed.
+    }
+
+    public synchronized void rotate(int angle) {
+        m_bufferedImage = ImageIOUtils.getManipulationHelper().rotate(m_bufferedImage, angle);
+        m_metadata = null; // Must be recomputed.
     }
 
     public File getFile() {

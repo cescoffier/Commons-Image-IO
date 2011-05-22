@@ -8,17 +8,17 @@ import java.io.IOException;
 
 public class ManipulationHelper {
 
-    public BufferedImage makeTranslucent(BufferedImage img, float transperancy) {
+    public BufferedImage makeTranslucent(BufferedImage img, float transparancy) {
         BufferedImage aimg = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TRANSLUCENT);
         Graphics2D g = aimg.createGraphics();
-        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, transperancy));
+        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, transparancy));
         g.drawImage(img, null, 0, 0);
         g.dispose();
         return aimg;
     }
 
-    public Image makeTranslucent(Image img, float transperancy) throws IOException {
-        BufferedImage aimg = makeTranslucent(img.getBufferedImage(), transperancy);
+    public Image makeTranslucent(Image img, float transparancy) throws IOException {
+        BufferedImage aimg = makeTranslucent(img.getBufferedImage(), transparancy);
         return new Image(aimg, img.getFormat());
     }
 

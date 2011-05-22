@@ -3,6 +3,7 @@ package de.akquinet.commons.image.io;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 public class ScaleHelper {
 
@@ -32,6 +33,23 @@ public class ScaleHelper {
         m_interpolation = RenderingHints.VALUE_INTERPOLATION_BILINEAR;
     }
 
+    public Image scaleImageBilinear(Image image, int width, int height) throws IOException {
+        BufferedImage bi = scaleImage(image.getBufferedImage(), width, height,
+                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        return new Image(bi, image.getFormat());
+    }
+
+    public Image scaleImageBicubic(Image image, int width, int height) throws IOException {
+        BufferedImage bi = scaleImage(image.getBufferedImage(), width, height,
+                RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        return new Image(bi, image.getFormat());
+    }
+
+    public Image scaleImageNearestNeighbor(Image image, int width, int height) throws IOException {
+        BufferedImage bi = scaleImage(image.getBufferedImage(), width, height,
+                RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+        return new Image(bi, image.getFormat());
+    }
 
     public BufferedImage scaleImageBilinear(BufferedImage image, int width, int height) {
         return scaleImage(image, width, height, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
@@ -76,6 +94,11 @@ public class ScaleHelper {
         BufferedImage newImage = scaleImage(image, width / 2, height / 2, m_interpolation);
         newImage = scaleImageBilinear(newImage, width / 4, height / 4);
         return newImage;
+    }
+
+    public Image scale(Image image, float ratio) throws IOException {
+        BufferedImage bi = scale(image.getBufferedImage(), ratio);
+        return new Image(bi, image.getFormat());
     }
 
     public BufferedImage scale(BufferedImage image, float ratio) {

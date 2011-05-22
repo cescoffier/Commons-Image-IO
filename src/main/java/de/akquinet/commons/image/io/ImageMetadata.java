@@ -381,7 +381,7 @@ public class ImageMetadata {
         return m_usesPalette;
     }
 
-    public Map<String, String> getMetadata() {
+    public Map<String, String> getExifMetadata() {
         return new HashMap<String,String>(m_metadata);
     }
 
