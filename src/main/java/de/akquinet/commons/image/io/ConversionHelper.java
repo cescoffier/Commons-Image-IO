@@ -12,8 +12,20 @@ import javax.imageio.ImageWriter;
 import javax.imageio.plugins.jpeg.JPEGImageWriteParam;
 import javax.imageio.stream.ImageOutputStream;
 
+/**
+ * Conversion Helper.
+ * This helper allows converting images to JPEG and PNG.
+ */
 public class ConversionHelper {
 
+    /**
+     * Converts the given {@link BufferedImage} to JPEG using
+     * the specified quality.
+     * @param image the buffered image to convert
+     * @param compressionQuality the quality
+     * @return the byte array containing the converted image
+     * @throws IOException if the image cannot be converted correctly.
+     */
     public byte[] convertImageToJPEGBytes(BufferedImage image,
             float compressionQuality) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -30,6 +42,13 @@ public class ConversionHelper {
         return imageBytes;
     }
 
+    /**
+     * Converts the given image to PNG. If the initial image do not contain
+     * alpha pixel the resulting image won't.
+     * @param image the input image
+     * @return the byte array containing the converted image
+     * @throws IOException if the image cannot be converted correctly.
+     */
     public byte[] convertImageToPNGBytes(BufferedImage image)
             throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();

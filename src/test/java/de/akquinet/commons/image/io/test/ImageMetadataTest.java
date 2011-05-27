@@ -127,7 +127,7 @@ public class ImageMetadataTest {
         Assert.assertFalse(metadata.isTransparent());
         Assert.assertFalse(metadata.usesPalette());
 
-        Assert.assertNull(metadata.getLocalization());
+        Assert.assertNull(metadata.getLocation());
 
         // Exif
         Assert.assertEquals("Canon", metadata.getMake());
@@ -212,13 +212,13 @@ public class ImageMetadataTest {
         Assert.assertEquals("iPhone 4",metadata.getModel());
 
         // Geolocalization
-        Assert.assertNotNull(metadata.getLocalization());
-        Assert.assertNotNull(metadata.getLocalization().latitudeRef);
-        Assert.assertNotNull(metadata.getLocalization().longitudeRef);
-        Assert.assertNotNull(metadata.getLocalization().latitudeDegrees);
-        Assert.assertNotNull(metadata.getLocalization().longitudeDegrees);
-        Assert.assertNotNull(metadata.getLocalization().latitudeMinutes);
-        Assert.assertNotNull(metadata.getLocalization().longitudeMinutes);
+        Assert.assertNotNull(metadata.getLocation());
+        Assert.assertNotNull(metadata.getLocation().latitudeRef);
+        Assert.assertNotNull(metadata.getLocation().longitudeRef);
+        Assert.assertNotNull(metadata.getLocation().latitudeDegrees);
+        Assert.assertNotNull(metadata.getLocation().longitudeDegrees);
+        Assert.assertNotNull(metadata.getLocation().latitudeMinutes);
+        Assert.assertNotNull(metadata.getLocation().longitudeMinutes);
 
     }
 
