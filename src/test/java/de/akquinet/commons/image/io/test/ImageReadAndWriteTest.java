@@ -61,15 +61,15 @@ public class ImageReadAndWriteTest {
         // Error cases
         try {
             new Image(new File("does not exist"));
-            Assert.fail("The file does not exist - IOException expected");
-        } catch (IOException e) {
+            Assert.fail("The file does not exist - IllegalArgumentException expected");
+        } catch (IllegalArgumentException e) {
             // OK
         }
 
         try {
             new Image((File) null);
-            Assert.fail("The file is null - IOException expected");
-        } catch (IOException e) {
+            Assert.fail("The file is null - IllegalArgumentException expected");
+        } catch (IllegalArgumentException e) {
             // OK
         }
 
@@ -98,15 +98,15 @@ public class ImageReadAndWriteTest {
         // Error cases
         try {
             new Image(new FileInputStream("does not exist"));
-            Assert.fail("The file does not exist - IOException expected");
+            Assert.fail("The file does not exist - IllegalArgumentException expected");
         } catch (IOException e) {
             // OK
         }
 
         try {
             new Image((FileInputStream) null);
-            Assert.fail("The file is null - IOException expected");
-        } catch (IOException e) {
+            Assert.fail("The file is null - IllegalArgumentException expected");
+        } catch (IllegalArgumentException e) {
             // OK
         }
     }
@@ -137,16 +137,16 @@ public class ImageReadAndWriteTest {
         // Error cases
         try {
             new Image(new byte[0]);
-            Assert.fail("The file is empty - IOException expected");
-        } catch (IOException e) {
+            Assert.fail("The file is empty - IllegalArgumentException expected");
+        } catch (IllegalArgumentException e) {
             // OK
         }
 
 
         try {
             img = new Image((byte[]) null);
-            Assert.fail("The file is empty - IOException expected");
-        } catch (IOException e) {
+            Assert.fail("The file is empty - IllegalArgumentException expected");
+        } catch (IllegalArgumentException e) {
             // OK
         }
     }
