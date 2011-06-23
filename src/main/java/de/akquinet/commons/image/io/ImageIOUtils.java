@@ -68,10 +68,10 @@ public class ImageIOUtils {
      * @return a new {@link ConversionHelper} instance if not already
      * created or a cached instance.
      */
-    public static ConversionHelper getConverterHelper() {
+    public static ConversionHelper getConversionHelper() {
         synchronized (ImageIOUtils.class) {
             if (m_defaultConverter == null) {
-                m_defaultConverter = getFreshConverterHelper();
+                m_defaultConverter = getFreshConversionHelper();
             }
         }
         return m_defaultConverter;
@@ -81,7 +81,7 @@ public class ImageIOUtils {
      * Gets a new {@link ConversionHelper} object
      * @return a new conversion helper instance
      */
-    public static ConversionHelper getFreshConverterHelper() {
+    public static ConversionHelper getFreshConversionHelper() {
         return new ConversionHelper();
     }
 
