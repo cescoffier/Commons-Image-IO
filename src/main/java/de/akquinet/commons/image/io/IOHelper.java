@@ -107,14 +107,15 @@ public class IOHelper {
 
     /**
      * Gets the format of the given input stream.
+     * The input stream is closed by this method.
      * @param is the input stream
      * @return the image format
      * @throws IOException if the format cannot be extracted, or is
      * not supported
-     * TODO Determined if the stream is closed
      */
     public Format getFormat(InputStream is) throws IOException {
         String v = getFormatName(is);
+        closeQuietly(is);
         if (v != null) {
             return Format.getFormatByExtension(v);
         } else {

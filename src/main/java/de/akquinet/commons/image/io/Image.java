@@ -58,7 +58,8 @@ public class Image {
     }
 
     /**
-     * Creates a Image from the given input stream
+     * Creates a Image from the given input stream.
+     * The input stream is closed by this method.
      * @param is the input stream
      * @throws IOException if the stream cannot be read.
      */
@@ -67,8 +68,8 @@ public class Image {
             throw new IllegalArgumentException(
                     "Cannot read image : the input is null");
         }
-        //TODO Is the stream closed ? The javadoc should mention it.
         byte[] bytes = IOUtils.toByteArray(is);
+        IOHelper.closeQuietly(is);
         m_bufferedImage = ImageIOUtils.getIOHelper().read(bytes);
         m_format = ImageIOUtils.getIOHelper().getFormat(bytes);
 
