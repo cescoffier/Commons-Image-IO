@@ -24,8 +24,8 @@
         </license>
     </licenses>
     <scm>
-        <connection>git@edge.spree.de:ats-bilderverwaltung/commons-image-io.git</connection>
-        <developerConnection>git@edge.spree.de:ats-bilderverwaltung/commons-image-io.git</developerConnection>
+        <connection>scm:git:git@edge.spree.de:ats-bilderverwaltung/commons-image-io.git</connection>
+        <developerConnection>scm:git:git@edge.spree.de:ats-bilderverwaltung/commons-image-io.git</developerConnection>
         <url>git@edge.spree.de:ats-bilderverwaltung/commons-image-io.git</url>
     </scm>
     <organization>
