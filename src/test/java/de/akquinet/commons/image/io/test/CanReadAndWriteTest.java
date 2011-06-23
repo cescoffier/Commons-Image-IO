@@ -1,5 +1,9 @@
 package de.akquinet.commons.image.io.test;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -108,6 +112,11 @@ public class CanReadAndWriteTest {
         Assert.assertNotNull(m_helper.getWriterForFormat(Format.GIF));
         Assert.assertNotNull(m_helper.getWriterForFormat(Format.PNG));
         Assert.assertNotNull(m_helper.getWriterForFormat(Format.JPEG));
+    }
+
+    @Test
+    public void testFormatExtraction() throws FileNotFoundException, IOException {
+        Assert.assertEquals(Format.GIF, m_helper.getFormat(new FileInputStream(ImageReadAndWriteTest.GIF)));
     }
 
 }
