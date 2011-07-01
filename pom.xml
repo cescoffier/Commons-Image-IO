@@ -126,6 +126,7 @@
                 <configuration>
                     <useReleaseProfile>true</useReleaseProfile>
                     <goals>deploy</goals>
+                    <arguments>-Prelease</arguments>
                 </configuration>
             </plugin>
         </plugins>
