@@ -1,12 +1,12 @@
 package de.akquinet.commons.image.io;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.sanselan.ImageReadException;
+import org.apache.sanselan.ImageWriteException;
+import org.apache.sanselan.formats.jpeg.iptc.JpegIptcRewriter;
 
 /**
  * The {@link Image} class represents pictures and provides
@@ -182,7 +182,21 @@ public class Image {
      * @see {@link Image#write(File)}
      */
     public synchronized void write(File out, Format format) throws IOException {
-        ImageIOUtils.getIOHelper().write(m_bufferedImage, out, format);
+        // If it's a JPEG, use Sanselan
+        if(format == Format.JPEG  && getMetadata().getIPTCMetadata().wasUpdated()) {
+            JpegIptcRewriter rewriter = new JpegIptcRewriter();
+            InputStream is = new ByteArrayInputStream(getBytes());
+            OutputStream fos = new FileOutputStream(out);
+            try {
+                rewriter.writeIPTC(is, fos, getMetadata().getIPTCMetadata().getPhotoshopApp13Data());
+            } catch (ImageReadException e) {
+                throw  new IOException(e.getMessage(), e);
+            } catch (ImageWriteException e) {
+                throw  new IOException(e.getMessage(), e);
+            }
+        } else {
+            ImageIOUtils.getIOHelper().write(m_bufferedImage, out, format);
+        }
     }
 
     /**

@@ -10,9 +10,10 @@ import org.junit.Test;
 import de.akquinet.commons.image.io.Format;
 import de.akquinet.commons.image.io.Image;
 import de.akquinet.commons.image.io.ImageMetadata;
-import de.akquinet.commons.image.io.ImageMetadata.Algorithm;
-import de.akquinet.commons.image.io.ImageMetadata.ColorType;
-import de.akquinet.commons.image.io.ImageMetadata.Orientation;
+import de.akquinet.commons.image.io.Algorithm;
+import de.akquinet.commons.image.io.ColorType;
+import de.akquinet.commons.image.io.Orientation;
+
 
 public class ImageMetadataTest {
 
@@ -323,7 +324,48 @@ public class ImageMetadataTest {
         Assert.assertNull(metadata.getModel());
     }
 
+    @Test
+    public void testMetadataForJPGAfterRewrite() throws IOException {
+        Image img = new Image(JPG);
+        File out = File.createTempFile("test", "rewritten.jpg");
+        img.write(out);
+        img = new Image(out);
+        ImageMetadata metadata = img.getMetadata();
 
+        // Size + Format
+        Assert.assertEquals(Format.JPEG, metadata.getFormat());
+        Assert.assertEquals(Algorithm.JPEG, metadata.getAlgorithm());
+        Assert.assertEquals("JPEG (Joint Photographic Experts Group) Format", metadata.getFormatName());
+        Assert.assertEquals(500, metadata.getWidth());
+        Assert.assertEquals(300, metadata.getHeight());
+
+        // Creation date
+        Assert.assertNotNull(metadata.getCreationDate());
+        System.out.println(metadata.getCreationDate());
+
+        // Color Type
+        Assert.assertEquals(ColorType.RGB, metadata.getColorType());
+
+        // DPI
+        Assert.assertEquals(72, metadata.getDpiWidth());
+        Assert.assertEquals(72, metadata.getDpiHeight());
+
+        // Orientation
+        Assert.assertEquals(1, metadata.getExifOrientation());
+        Assert.assertEquals(Orientation.LANDSCAPE, metadata.getOrientation());
+
+        // Misc details
+        Assert.assertEquals(1, metadata.getNumberOfImages());
+        Assert.assertEquals(24, metadata.getBitsPerPixel());
+
+        // Missing metadata
+        Assert.assertFalse(metadata.isProgressive());
+        Assert.assertFalse(metadata.isTransparent());
+        Assert.assertFalse(metadata.usesPalette());
+
+        Assert.assertNull(metadata.getMake());
+        Assert.assertNull(metadata.getModel());
+    }
 
 
 }
