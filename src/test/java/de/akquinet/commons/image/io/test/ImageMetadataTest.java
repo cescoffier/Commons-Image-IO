@@ -1,18 +1,15 @@
 package de.akquinet.commons.image.io.test;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 
+import de.akquinet.commons.image.io.*;
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
-
-import de.akquinet.commons.image.io.Format;
-import de.akquinet.commons.image.io.Image;
-import de.akquinet.commons.image.io.ImageMetadata;
-import de.akquinet.commons.image.io.Algorithm;
-import de.akquinet.commons.image.io.ColorType;
-import de.akquinet.commons.image.io.Orientation;
 
 
 public class ImageMetadataTest {
@@ -366,6 +363,32 @@ public class ImageMetadataTest {
         Assert.assertNull(metadata.getMake());
         Assert.assertNull(metadata.getModel());
     }
+
+    @Test
+    public void testWriteJPEG() throws Exception {
+        Image origin = new Image(new File("src/test/resources/jpg/IMG_0467.jpg"));
+        System.out.println(origin.getMetadata().getKeywords());
+
+        List<String> keywords = origin.getMetadata().getKeywords();
+        keywords.add("stuff");
+        origin.getMetadata().setKeywords(keywords);
+
+        JPEGWriter writer = new JPEGWriter();
+        writer.load(origin);
+
+        File out = File.createTempFile("xxx", "rewritten.jpg");
+        FileOutputStream fos = new FileOutputStream(out);
+        writer.write(fos);
+        fos.close();
+
+        Image image = new Image(out);
+        System.out.println(image.getMetadata().getAlgorithm());
+        System.out.println(image.getMetadata().getKeywords());
+        System.out.println(out.getAbsolutePath());
+
+    }
+
+
 
 
 }

@@ -1,8 +1,10 @@
 package de.akquinet.commons.image.io.test;
 
 
+import de.akquinet.commons.image.io.Format;
 import de.akquinet.commons.image.io.IPTCMetadata;
 import de.akquinet.commons.image.io.Image;
+import de.akquinet.commons.image.io.ImageIOUtils;
 import org.apache.sanselan.ImageReadException;
 import org.apache.sanselan.Sanselan;
 import org.apache.sanselan.common.byteSources.ByteSourceFile;
@@ -13,14 +15,13 @@ import org.apache.sanselan.formats.jpeg.iptc.IPTCRecord;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class IPTCTest {
 
@@ -50,6 +51,94 @@ public class IPTCTest {
         assertTrue(image.getMetadata().getKeywords().contains("bois"));
         assertTrue(image.getMetadata().getKeywords().contains("noir"));
         assertTrue(image.getMetadata().getKeywords().contains("bren"));
+    }
+
+    @Test
+    public void testIPTCMetadataCopy() throws IOException {
+        File file = new File("src/test/resources/jpg/IMG_0467.jpg");
+        Image origin = new Image(file);
+        File out = File.createTempFile("commons-image-io", "-rewritten.jpg");
+        origin.write(out);
+
+        Image copy = new Image(out);
+        IPTCMetadata iptc = copy.getMetadata().getIPTCMetadata();
+        assertNotNull(iptc);
+
+        assertEquals("Clement Escoffier", origin.getMetadata().getByLine());
+        assertEquals("C'est moi", origin.getMetadata().getByLineTitle());
+
+        assertEquals("Bren", origin.getMetadata().getCity());
+        assertEquals("France", origin.getMetadata().getCountry());
+        assertEquals("Drome", origin.getMetadata().getState());
+
+        assertEquals("C'est du bois", origin.getMetadata().getCaption());
+        assertEquals("Clement", origin.getMetadata().getEditor());
+
+        assertEquals("Free of super use", origin.getMetadata().getCopyright());
+
+        assertEquals("BOIS BOIS BOIS", origin.getMetadata().getHeadLine());
+        assertEquals("Bois", origin.getMetadata().getTitle());
+
+        assertEquals("20111025", origin.getMetadata().getIPTCCreationDate());
+        assertTrue(origin.getMetadata().getKeywords().contains("bois"));
+        assertTrue(origin.getMetadata().getKeywords().contains("noir"));
+        assertTrue(origin.getMetadata().getKeywords().contains("bren"));
+    }
+
+    @Test
+    public void testIPTCMetadataUpdate() throws IOException {
+        File file = new File("src/test/resources/jpg/IMG_0467.jpg");
+        Image origin = new Image(file);
+
+        // update metadata
+        List<String> keywords = origin.getMetadata().getKeywords();
+        keywords.add("test");
+        keywords.remove("noir");
+        origin.getMetadata().setKeywords(keywords);
+
+        origin.getMetadata().setByLine("Commons image io");
+        origin.getMetadata().setByLineTitle("Commons image io Title");
+
+        origin.getMetadata().setCaption("Du bois");
+        origin.getMetadata().setEditor("Edited by Commons Image IO");
+
+        origin.getMetadata().setCity("Berlin");
+        origin.getMetadata().setCountry("Germany");
+        origin.getMetadata().setState("BB");
+
+        origin.getMetadata().setCopyright("Creative Commons");
+        origin.getMetadata().setHeadline("Foo");
+        origin.getMetadata().setTitle("FooTitle");
+
+        origin.getMetadata().setIPTCCreationDate("02112011");
+
+        File out = File.createTempFile("commons-image-io", "-rewritten.jpg");
+        origin.write(out);
+
+        Image copy = new Image(out);
+        IPTCMetadata iptc = copy.getMetadata().getIPTCMetadata();
+        assertNotNull(iptc);
+
+        assertEquals("Commons image io", origin.getMetadata().getByLine());
+        assertEquals("Commons image io Title", origin.getMetadata().getByLineTitle());
+
+        assertEquals("Berlin", origin.getMetadata().getCity());
+        assertEquals("Germany", origin.getMetadata().getCountry());
+        assertEquals("BB", origin.getMetadata().getState());
+
+        assertEquals("Du bois", origin.getMetadata().getCaption());
+        assertEquals("Edited by Commons Image IO", origin.getMetadata().getEditor());
+
+        assertEquals("Creative Commons", origin.getMetadata().getCopyright());
+
+        assertEquals("Foo", origin.getMetadata().getHeadLine());
+        assertEquals("FooTitle", origin.getMetadata().getTitle());
+
+        assertEquals("02112011", origin.getMetadata().getIPTCCreationDate());
+        assertTrue(origin.getMetadata().getKeywords().contains("bois"));
+        assertTrue(origin.getMetadata().getKeywords().contains("test"));
+        assertFalse(origin.getMetadata().getKeywords().contains("noir"));
+        assertTrue(origin.getMetadata().getKeywords().contains("bren"));
     }
 
     @Test
@@ -90,6 +179,37 @@ public class IPTCTest {
            Map params = new HashMap();
            String xmpXml = new JpegImageParser().getXmpXml(new ByteSourceFile(file), params );
             System.out.println(xmpXml);
+    }
+
+    public static final File PNG = new File("src/test/resources/png/wilber-huge-alpha.png");
+    @Test
+    public void testMetadataEditionOnPNG() throws  IOException {
+        Image image = new Image(new FileInputStream(PNG));
+        assertNull(image.getMetadata().getIPTCMetadata());
+        image.getMetadata().setByLine("A test");
+
+        File out = File.createTempFile("image-io", "-rewritten.jpg");
+        image.write(out, Format.JPEG);
+
+        image = new Image(out);
+        assertNotNull(image.getMetadata());
+        assertEquals("A test", image.getMetadata().getByLine());
+        System.out.println(out.getAbsolutePath());
+    }
+
+    @Test
+    public void testMetadataEditionOnBufferedImage() throws  IOException {
+        Image image = new Image(ImageIOUtils.getIOHelper().read(PNG), Format.PNG);
+        assertNull(image.getMetadata().getIPTCMetadata());
+        image.getMetadata().setByLine("A test");
+
+        File out = File.createTempFile("image-io", "-rewritten.jpg");
+        image.write(out, Format.JPEG);
+
+        image = new Image(out);
+        assertNotNull(image.getMetadata());
+        assertEquals("A test", image.getMetadata().getByLine());
+        System.out.println(out.getAbsolutePath());
     }
 
 }

@@ -80,7 +80,7 @@ public class ImageMetadata {
 
         try {
             if (image.getFile() == null || !image.getFile().exists()) {
-                byte[] bytes = image.getBytes();
+                byte[] bytes = image.getRawBytes();
                 info = Sanselan.getImageInfo(bytes);
                 metadata = Sanselan.getMetadata(bytes);
             } else {
@@ -140,7 +140,10 @@ public class ImageMetadata {
         if (metadata instanceof JpegImageMetadata) {
             GPSInfo gps = null;
             try {
-                gps = ((JpegImageMetadata) metadata).getExif().getGPS();
+                final TiffImageMetadata exif = ((JpegImageMetadata) metadata).getExif();
+                if (exif != null) {
+                    gps = exif.getGPS();
+                }
             } catch (ImageReadException e) {
                 // ignore.
             }
@@ -388,7 +391,11 @@ public class ImageMetadata {
     }
 
     public String getIPTCCreationDate() {
-        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_DATE_CREATED.type);
+        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_DATE_CREATED);
+    }
+
+    public void setIPTCCreationDate(String value) {
+        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_DATE_CREATED, value);
     }
 
     /**
@@ -416,7 +423,7 @@ public class ImageMetadata {
      */
     public Orientation getOrientation() {
         String exif = m_metadata.get("Orientation");
-        String iptc = m_iptc.getValue(IPTCConstants.IPTC_TYPE_IMAGE_ORIENTATION.type);
+        String iptc = m_iptc.getValue(IPTCConstants.IPTC_TYPE_IMAGE_ORIENTATION);
         if (exif == null  && iptc == null) {
             return Orientation.UNKNOWN;
         } else if (exif != null) {
@@ -458,7 +465,11 @@ public class ImageMetadata {
      * the metadata does not exist
      */
     public String getTitle() {
-        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_OBJECT_NAME.type);
+        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_OBJECT_NAME);
+    }
+
+    public void setTitle(String value) {
+        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_OBJECT_NAME, value);
     }
 
     /**
@@ -474,38 +485,75 @@ public class ImageMetadata {
     }
 
     public String getByLine() {
-        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_BYLINE.type);
+        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_BYLINE);
+    }
+
+    public void setByLine(String value) {
+        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_BYLINE, value);
     }
 
     public String getByLineTitle() {
-        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_BYLINE_TITLE.type);
+        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_BYLINE_TITLE);
+    }
+
+    public void setByLineTitle(String value) {
+        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_BYLINE_TITLE, value);
     }
 
     public String getHeadLine() {
-        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_HEADLINE.type);
+        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_HEADLINE);
+    }
+
+    public void setHeadline(String value) {
+        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_HEADLINE, value);
     }
 
     public String getCity() {
-        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_CITY.type);
+        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_CITY);
+    }
+
+    public void setCity(String value) {
+        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_CITY, value);
     }
 
     public String getState() {
-        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_PROVINCE_STATE.type);
+        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_PROVINCE_STATE);
+    }
+
+    public void setState(String value) {
+        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_PROVINCE_STATE, value);
     }
 
     public String getCountry() {
-        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_COUNTRY_PRIMARY_LOCATION_NAME.type);
+        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_COUNTRY_PRIMARY_LOCATION_NAME);
+    }
+
+    public void setCountry(String value) {
+        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_COUNTRY_PRIMARY_LOCATION_NAME, value);
     }
 
     public String getCopyright() {
-        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_COPYRIGHT_NOTICE.type);
+        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_COPYRIGHT_NOTICE);
+    }
+
+    public void setCopyright(String value) {
+        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_COPYRIGHT_NOTICE, value);
     }
 
     public String getCaption() {
-        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_CAPTION_ABSTRACT.type);
+        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_CAPTION_ABSTRACT);
     }
+
+    public void setCaption(String value) {
+        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_CAPTION_ABSTRACT, value);
+    }
+
     public String getEditor() {
-        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_WRITER_EDITOR.type);
+        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_WRITER_EDITOR);
+    }
+
+    public void setEditor(String value) {
+        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_WRITER_EDITOR, value);
     }
 
 }

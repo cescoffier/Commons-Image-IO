@@ -24,12 +24,16 @@ public class IPTCMetadata extends ArrayList<IPTCMetadata.Record> {
     public IPTCMetadata(JpegImageMetadata metadata) {
         super();
         JpegPhotoshopMetadata psMetadata = ((JpegImageMetadata) metadata).getPhotoshop();
-        m_photoshopApp13Data = psMetadata.photoshopApp13Data;
-        List oldRecords = m_photoshopApp13Data.getRecords();
-        if (oldRecords != null) {
-            for (IPTCRecord record : (List<IPTCRecord>) oldRecords) {
-                addMetadata(record.getIptcTypeName(), record.iptcType.type, record.getValue());
+        if (psMetadata != null) {
+            m_photoshopApp13Data = psMetadata.photoshopApp13Data;
+            List oldRecords = m_photoshopApp13Data.getRecords();
+            if (oldRecords != null) {
+                for (IPTCRecord record : (List<IPTCRecord>) oldRecords) {
+                    addMetadata(record.getIptcTypeName(), record.iptcType.type, record.getValue());
+                }
             }
+        } else {
+            m_photoshopApp13Data = null;
         }
     }
 
@@ -40,8 +44,11 @@ public class IPTCMetadata extends ArrayList<IPTCMetadata.Record> {
                 records.add(new IPTCRecord(record.getIPTCType(), v));
             }
         }
-
-        return new PhotoshopApp13Data(records, m_photoshopApp13Data.getNonIptcBlocks());
+        if (m_photoshopApp13Data != null) {
+            return new PhotoshopApp13Data(records, m_photoshopApp13Data.getNonIptcBlocks());
+        } else {
+            return new PhotoshopApp13Data(records, new ArrayList(0));
+        }
 
     }
 
@@ -124,8 +131,8 @@ public class IPTCMetadata extends ArrayList<IPTCMetadata.Record> {
         return null;
     }
 
-    public String getValue(int type) {
-        Record record = getRecordByType(type);
+    public String getValue(IPTCType type) {
+        Record record = getRecordByType(type.type);
         if (record != null) {
             return record.getValue();
         } else {
