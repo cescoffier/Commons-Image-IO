@@ -1,6 +1,5 @@
 package de.akquinet.commons.image.io;
 
-import org.apache.sanselan.ImageReadException;
 import org.apache.sanselan.common.RationalNumber;
 import org.apache.sanselan.formats.tiff.TiffImageMetadata;
 
@@ -8,7 +7,6 @@ import org.apache.sanselan.formats.tiff.TiffImageMetadata;
  * Class representing the location.
  * Location metadata are extracted from JPEG file containing
  * EXIF metadata.
- * TODO Remove the reference to Sanselan class
  */
 public class Location {
     public final String latitudeRef;
@@ -70,7 +68,7 @@ public class Location {
         return result.toString();
     }
 
-    public double getLongitudeAsDegreesEast() throws ImageReadException {
+    public double getLongitudeAsDegreesEast() {
         double result = longitudeDegrees.doubleValue()
                 + (longitudeMinutes.doubleValue() / 60.0)
                 + (longitudeSeconds.doubleValue() / 3600.0);
@@ -80,11 +78,11 @@ public class Location {
         else if (longitudeRef.trim().equalsIgnoreCase("w"))
             return -result;
         else
-            throw new ImageReadException("Unknown longitude ref: \""
+            throw new IllegalStateException("Unknown longitude ref: \""
                     + longitudeRef + "\"");
     }
 
-    public double getLatitudeAsDegreesNorth() throws ImageReadException {
+    public double getLatitudeAsDegreesNorth() {
         double result = latitudeDegrees.doubleValue()
                 + (latitudeMinutes.doubleValue() / 60.0)
                 + (latitudeSeconds.doubleValue() / 3600.0);
@@ -94,7 +92,7 @@ public class Location {
         else if (latitudeRef.trim().equalsIgnoreCase("s"))
             return -result;
         else
-            throw new ImageReadException("Unknown latitude ref: \""
+            throw new IllegalStateException("Unknown latitude ref: \""
                     + latitudeRef + "\"");
     }
 
