@@ -16,6 +16,10 @@ import org.apache.sanselan.common.IImageMetadata;
 import org.apache.sanselan.common.RationalNumber;
 import org.apache.sanselan.common.ImageMetadata.Item;
 import org.apache.sanselan.formats.jpeg.JpegImageMetadata;
+import org.apache.sanselan.formats.jpeg.JpegPhotoshopMetadata;
+import org.apache.sanselan.formats.jpeg.iptc.IPTCConstants;
+import org.apache.sanselan.formats.jpeg.iptc.IPTCRecord;
+import org.apache.sanselan.formats.tiff.TiffImageMetadata;
 import org.apache.sanselan.formats.tiff.TiffImageMetadata.GPSInfo;
 
 /**
@@ -23,242 +27,10 @@ import org.apache.sanselan.formats.tiff.TiffImageMetadata.GPSInfo;
  * of the extraction of the metadata. The extracted metadata depends from
  * the type of images (Format) and the source of the image (file or others).
  * Pictures can contain different set of metadata.
- *
+ * <p/>
  * This class extracts both image info and EXIF metadata is available.
  */
 public class ImageMetadata {
-
-    public static final int COLOR_TYPE_BW = 0;
-    public static final int COLOR_TYPE_GRAYSCALE = 1;
-    public static final int COLOR_TYPE_RGB = 2;
-    public static final int COLOR_TYPE_CMYK = 3;
-    public static final int COLOR_TYPE_OTHER = -1;
-    public static final int COLOR_TYPE_UNKNOWN = -2;
-
-    /**
-     * The different color types. The {@link ColorType#UNKNOWN}
-     * value is used when the extraction is not possible.
-     */
-    public enum ColorType {
-        BLACK_WHITE,
-        GRAYSCALE,
-        RGB,
-        CMYK,
-        OTHER,
-        UNKNOWN;
-
-        /**
-         * Gets the {@link ColorType} enumerated value from the
-         * given integer from Sanselan.
-         * @param type the color type from Sanselan.
-         * @return the associated {@link ColorType}, {@link ColorType#UNKNOWN}
-         * if there is no matching {@link ColorType} for the given integer.
-         */
-        public static ColorType getColorType(int type) {
-            switch (type) {
-            case COLOR_TYPE_BW: return BLACK_WHITE;
-            case COLOR_TYPE_GRAYSCALE: return GRAYSCALE;
-            case COLOR_TYPE_RGB: return RGB;
-            case COLOR_TYPE_CMYK: return CMYK;
-            case COLOR_TYPE_OTHER: return OTHER;
-            default: return UNKNOWN;
-            }
-        }
-    }
-
-    /**
-     * The different orientations.
-     * The {@link Orientation#UNKNOWN} value is used when the extraction
-     * is not possible, or if the orientation is not directly mappable to
-     * portrait or landscape. Orientation is an EXIF metadata.
-     */
-    public enum Orientation {
-        PORTRAIT,
-        LANDSCAPE,
-        UNKNOWN;
-
-        /**
-         * Gets the {@link Orientation} enumerated value for the EXIF orientation
-         * (integer from 1 to 8).
-         * @param orientation the EXIF Orientation
-         * @return
-         */
-        public static Orientation getOrientationFromExif(int orientation) {
-            switch (orientation) {
-            case 1:
-            case 3:
-                return LANDSCAPE;
-            case 8:
-            case 6:
-                return PORTRAIT;
-            default:
-                return UNKNOWN;
-            }
-        }
-    }
-
-    /**
-     * Compression Algorithm.
-     * {@link Algorithm#UNKNOWN} is used when the algorithm is unknown
-     * or cannot be extracted.
-     */
-    public enum Algorithm {
-        UNKNOWN,
-        NONE,
-        LZW,
-        PACKBITS,
-        JPEG,
-        RLE,
-        PSD,
-        PNG,
-        CCITT_GROUP_3,
-        CCITT_GROUP_4,
-        CCITT_1D;
-
-        /**
-         * Gets the {@link Algorithm} enumerated values for the
-         * algorithm name returned by Sanselan.
-         * @param name the algorithm name from Sanselan
-         * @return the matching {@link Algorithm}, {@link Algorithm#UNKNOWN}
-         * if no matching algorithm found
-         */
-        public static Algorithm getAlgorithm(String name) {
-            if (name == null) {
-                return UNKNOWN;
-            } else if (COMPRESSION_ALGORITHM_CCITT_1D.equals(name)) {
-                return CCITT_1D;
-            } else if (COMPRESSION_ALGORITHM_CCITT_GROUP_3.equals(name)) {
-                return CCITT_GROUP_3;
-            } else if (COMPRESSION_ALGORITHM_CCITT_GROUP_4.equals(name)) {
-                return CCITT_GROUP_4;
-            } else if (COMPRESSION_ALGORITHM_JPEG.equals(name)) {
-                return JPEG;
-            } else if (COMPRESSION_ALGORITHM_LZW.equals(name)) {
-                return LZW;
-            } else if (COMPRESSION_ALGORITHM_NONE.equals(name)) {
-                return NONE;
-            } else if (COMPRESSION_ALGORITHM_PACKBITS.equals(name)) {
-                return PACKBITS;
-            } else if (COMPRESSION_ALGORITHM_PNG_FILTER.equals(name)) {
-                return PNG;
-            } else if (COMPRESSION_ALGORITHM_PSD.equals(name)) {
-                return PSD;
-            } else if (COMPRESSION_ALGORITHM_RLE.equals(name)) {
-                return RLE;
-            } else {
-                return UNKNOWN;
-            }
-        }
-    }
-
-    public static final String COMPRESSION_ALGORITHM_UNKNOWN = "Unknown";
-    public static final String COMPRESSION_ALGORITHM_NONE = "None";
-    public static final String COMPRESSION_ALGORITHM_LZW = "LZW";
-    public static final String COMPRESSION_ALGORITHM_PACKBITS = "PackBits";
-    public static final String COMPRESSION_ALGORITHM_JPEG = "JPEG";
-    public static final String COMPRESSION_ALGORITHM_RLE = "RLE: Run-Length Encoding";
-    public static final String COMPRESSION_ALGORITHM_PSD = "Photoshop";
-    public static final String COMPRESSION_ALGORITHM_PNG_FILTER = "PNG Filter";
-    public static final String COMPRESSION_ALGORITHM_CCITT_GROUP_3 = "CCITT Group 3 1-Dimensional Modified Huffman run-length encoding.";
-    public static final String COMPRESSION_ALGORITHM_CCITT_GROUP_4 = "CCITT Group 4";
-    public static final String COMPRESSION_ALGORITHM_CCITT_1D = "CCITT 1D";
-
-    /**
-     * Class representing the location.
-     * Location metadata are extracted from JPEG file containing
-     * EXIF metadata.
-     * TODO Remove the reference to Sanselan class
-     */
-    public class Location {
-        public final String latitudeRef;
-        public final String longitudeRef;
-
-        public final RationalNumber latitudeDegrees;
-        public final RationalNumber latitudeMinutes;
-        public final RationalNumber latitudeSeconds;
-        public final RationalNumber longitudeDegrees;
-        public final RationalNumber longitudeMinutes;
-        public final RationalNumber longitudeSeconds;
-
-        public Location(final String latitudeRef, final String longitudeRef,
-                final RationalNumber latitudeDegrees,
-                final RationalNumber latitudeMinutes,
-                final RationalNumber latitudeSeconds,
-                final RationalNumber longitudeDegrees,
-                final RationalNumber longitudeMinutes,
-                final RationalNumber longitudeSeconds) {
-            this.latitudeRef = latitudeRef;
-            this.longitudeRef = longitudeRef;
-            this.latitudeDegrees = latitudeDegrees;
-            this.latitudeMinutes = latitudeMinutes;
-            this.latitudeSeconds = latitudeSeconds;
-            this.longitudeDegrees = longitudeDegrees;
-            this.longitudeMinutes = longitudeMinutes;
-            this.longitudeSeconds = longitudeSeconds;
-        }
-
-        public Location(GPSInfo info) {
-            this.latitudeRef = info.latitudeRef;
-            this.longitudeRef = info.longitudeRef;
-            this.latitudeDegrees = info.latitudeDegrees;
-            this.latitudeMinutes = info.latitudeMinutes;
-            this.latitudeSeconds = info.latitudeSeconds;
-            this.longitudeDegrees = info.longitudeDegrees;
-            this.longitudeMinutes = info.longitudeMinutes;
-            this.longitudeSeconds = info.longitudeSeconds;
-        }
-
-        public String toString() {
-            // This will format the gps info like so:
-            //
-            // latitude: 8 degrees, 40 minutes, 42.2 seconds S
-            // longitude: 115 degrees, 26 minutes, 21.8 seconds E
-
-            StringBuffer result = new StringBuffer();
-            result.append("[GPS. ");
-            result.append("Latitude: " + latitudeDegrees.toDisplayString()
-                    + " degrees, " + latitudeMinutes.toDisplayString()
-                    + " minutes, " + latitudeSeconds.toDisplayString()
-                    + " seconds " + latitudeRef);
-            result.append(", Longitude: " + longitudeDegrees.toDisplayString()
-                    + " degrees, " + longitudeMinutes.toDisplayString()
-                    + " minutes, " + longitudeSeconds.toDisplayString()
-                    + " seconds " + longitudeRef);
-            result.append("]");
-
-            return result.toString();
-        }
-
-        public double getLongitudeAsDegreesEast() throws ImageReadException {
-            double result = longitudeDegrees.doubleValue()
-                    + (longitudeMinutes.doubleValue() / 60.0)
-                    + (longitudeSeconds.doubleValue() / 3600.0);
-
-            if (longitudeRef.trim().equalsIgnoreCase("e"))
-                return result;
-            else if (longitudeRef.trim().equalsIgnoreCase("w"))
-                return -result;
-            else
-                throw new ImageReadException("Unknown longitude ref: \""
-                        + longitudeRef + "\"");
-        }
-
-        public double getLatitudeAsDegreesNorth() throws ImageReadException {
-            double result = latitudeDegrees.doubleValue()
-                    + (latitudeMinutes.doubleValue() / 60.0)
-                    + (latitudeSeconds.doubleValue() / 3600.0);
-
-            if (latitudeRef.trim().equalsIgnoreCase("n"))
-                return result;
-            else if (latitudeRef.trim().equalsIgnoreCase("s"))
-                return -result;
-            else
-                throw new ImageReadException("Unknown latitude ref: \""
-                        + latitudeRef + "\"");
-        }
-
-    }
-
 
     private final int m_height;
 
@@ -290,12 +62,15 @@ public class ImageMetadata {
 
     private final Map<String, String> m_metadata = new HashMap<String, String>();
 
+    private final IPTCMetadata m_iptc;
+
     private final Location m_location;
 
     /**
      * Creates a ImageMetadata for the given Image.
      * This constructor extracts image info and if the format is eligible
      * tries to extract the EXIF metadata
+     *
      * @param image the image from where metadata are extracted
      * @throws IOException if metadata cannot be extracted
      */
@@ -304,8 +79,8 @@ public class ImageMetadata {
         IImageMetadata metadata = null;
 
         try {
-            if (image.getFile() == null  || ! image.getFile().exists()) {
-                byte[] bytes = image.getBytes();
+            if (image.getFile() == null || !image.getFile().exists()) {
+                byte[] bytes = image.getRawBytes();
                 info = Sanselan.getImageInfo(bytes);
                 metadata = Sanselan.getMetadata(bytes);
             } else {
@@ -344,31 +119,48 @@ public class ImageMetadata {
             for (Item i : items) {
                 m_metadata.put(i.getKeyword(), i.getText());
             }
-
-            if (metadata instanceof JpegImageMetadata) {
-                GPSInfo gps = null;
-                try {
-                    gps = ((JpegImageMetadata) metadata).getExif().getGPS();
-                } catch (ImageReadException e) {
-                    // ignore.
-                }
-                if (gps != null) {
-                    m_location = new Location(gps);
-                } else {
-                    m_location = null;
-                }
-            } else {
-                m_location = null;
-            }
+            m_iptc = extractIPTC(metadata);
+            m_location = extractLocation(metadata);
 
         } else {
             m_location = null;
+            m_iptc = new IPTCMetadata();
+        }
+    }
+
+    private IPTCMetadata extractIPTC(IImageMetadata metadata) {
+        if (metadata instanceof JpegImageMetadata) {
+            return new IPTCMetadata((JpegImageMetadata) metadata);
+        } else {
+            return new IPTCMetadata();
+        }
+    }
+
+    private Location extractLocation(IImageMetadata metadata) {
+        if (metadata instanceof JpegImageMetadata) {
+            GPSInfo gps = null;
+            try {
+                final TiffImageMetadata exif = ((JpegImageMetadata) metadata).getExif();
+                if (exif != null) {
+                    gps = exif.getGPS();
+                }
+            } catch (ImageReadException e) {
+                // ignore.
+            }
+            if (gps != null) {
+                return new Location(gps);
+            } else {
+                return null;
+            }
+        } else {
+            return null;
         }
     }
 
     /**
      * Creates a ImageMetadata from a byte array. Exif metadata won't be
      * extracted.
+     *
      * @param bytes the byte array
      * @throws IOException if the metadata cannot be extracted
      */
@@ -378,6 +170,7 @@ public class ImageMetadata {
 
     /**
      * Creates a ImageMetadata from the given file.
+     *
      * @param file the file
      * @throws IOException if the metadata cannot be extracted
      */
@@ -387,6 +180,7 @@ public class ImageMetadata {
 
     /**
      * Gets the image height in pixels.
+     *
      * @return the height
      * @see Image#getHeight()
      */
@@ -396,6 +190,7 @@ public class ImageMetadata {
 
     /**
      * Gets the image width in pixels
+     *
      * @return the width
      * @see Image#getWidth()
      */
@@ -405,6 +200,7 @@ public class ImageMetadata {
 
     /**
      * Gets the image format.
+     *
      * @return the image format
      * @see Image#getFormat()
      */
@@ -414,6 +210,7 @@ public class ImageMetadata {
 
     /**
      * Gets the format name.
+     *
      * @return the format name
      */
     public String getFormatName() {
@@ -422,6 +219,7 @@ public class ImageMetadata {
 
     /**
      * Gets format details.
+     *
      * @return the format details
      */
     public String getFormatDetails() {
@@ -430,6 +228,7 @@ public class ImageMetadata {
 
     /**
      * Gets the compression algorithm
+     *
      * @return the algorithm
      */
     public Algorithm getAlgorithm() {
@@ -438,6 +237,7 @@ public class ImageMetadata {
 
     /**
      * Gets the number of bits used to encode one pixel
+     *
      * @return the number of bits per pixels
      */
     public int getBitsPerPixel() {
@@ -446,6 +246,7 @@ public class ImageMetadata {
 
     /**
      * Gets the color type of the picture
+     *
      * @return the color type
      */
     public ColorType getColorType() {
@@ -454,6 +255,7 @@ public class ImageMetadata {
 
     /**
      * Gets the number of Dot Per Inch for the image height.
+     *
      * @return the DPI for the height
      */
     public int getDpiHeight() {
@@ -462,6 +264,7 @@ public class ImageMetadata {
 
     /**
      * Gets the number of Dot Per Inch for the image width.
+     *
      * @return the DPI for the width
      */
     public int getDpiWidth() {
@@ -471,8 +274,9 @@ public class ImageMetadata {
     /**
      * Does the pictures contains transparent pixels, i.e.
      * alpha colors.
+     *
      * @return <code>true</code> if the image contains transparent pixels,
-     * <code>false</code> otherwise
+     *         <code>false</code> otherwise
      */
     public boolean isTransparent() {
         return m_isTransparent;
@@ -480,8 +284,9 @@ public class ImageMetadata {
 
     /**
      * Does the picture is interlaced or not.
+     *
      * @return <code>true</code> if the image support progressive loading,
-     * <code>false</code> otherwise
+     *         <code>false</code> otherwise
      */
     public boolean isProgressive() {
         return m_isProgressive;
@@ -490,6 +295,7 @@ public class ImageMetadata {
     /**
      * Gets the number of images contained in the picture.
      * This not not count the EXIF thumbnails.
+     *
      * @return the number of images
      */
     public int getNumberOfImages() {
@@ -498,8 +304,9 @@ public class ImageMetadata {
 
     /**
      * Does the image use a custom palette.
+     *
      * @return <code>true</code> if the image uses a custom palette,
-     * <code>false</code> otherwise
+     *         <code>false</code> otherwise
      */
     public boolean usesPalette() {
         return m_usesPalette;
@@ -507,15 +314,30 @@ public class ImageMetadata {
 
     /**
      * Gets EXIF metadata if any.
+     *
      * @return a copy of the image metadata. An empty {@link Map} is
-     * returned if no EXIF metadata were extracted
+     *         returned if no EXIF metadata were extracted
      */
     public Map<String, String> getExifMetadata() {
-        return new HashMap<String,String>(m_metadata);
+        return new HashMap<String, String>(m_metadata);
+    }
+
+    /**
+     * Gets IPTC metadata if any.
+     *
+     * @return the image IPTC metadata. <code>null</code> is
+     *         returned if no IPTC metadata were extracted
+     */
+    public IPTCMetadata getIPTCMetadata() {
+        if (m_iptc.size() == 0) {
+            return null;
+        }
+        return m_iptc;
     }
 
     /**
      * Gets the camera make.
+     *
      * @return the camera make, <code>null</code> if not contained
      */
     public String getMake() {
@@ -528,6 +350,7 @@ public class ImageMetadata {
 
     /**
      * Gets the camera model.
+     *
      * @return the camera model, <code>null</code> if not contained
      */
     public String getModel() {
@@ -542,8 +365,9 @@ public class ImageMetadata {
      * Gets the creation date.
      * This methods checks the <code>create date</code> EXIF key. If this key is
      * not present, the <code>modify date</code> key is checked.
+     *
      * @return the creation date, <code>null</code> if not contained
-     * or if the date cannot be parsed.
+     *         or if the date cannot be parsed.
      */
     public Date getCreationDate() {
         String d = m_metadata.get("Create Date");
@@ -566,8 +390,17 @@ public class ImageMetadata {
         }
     }
 
+    public String getIPTCCreationDate() {
+        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_DATE_CREATED);
+    }
+
+    public void setIPTCCreationDate(String value) {
+        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_DATE_CREATED, value);
+    }
+
     /**
      * Utility methods removing quotes around EXIF metadata.
+     *
      * @param d the EXIF String
      * @return the given input without the first and last quote is present
      */
@@ -577,30 +410,35 @@ public class ImageMetadata {
         }
 
         if (d.endsWith("'")) {
-            d = d.substring(0, d.length() -1);
+            d = d.substring(0, d.length() - 1);
         }
         return d;
     }
 
     /**
      * Gets the picture orientation.
+     *
      * @return the orientation, {@link Orientation#UNKNOWN} is returned
-     * if the orientation was not extracted.
+     *         if the orientation was not extracted.
      */
     public Orientation getOrientation() {
-        String or = m_metadata.get("Orientation");
-        if (or == null) {
+        String exif = m_metadata.get("Orientation");
+        String iptc = m_iptc.getValue(IPTCConstants.IPTC_TYPE_IMAGE_ORIENTATION);
+        if (exif == null  && iptc == null) {
             return Orientation.UNKNOWN;
+        } else if (exif != null) {
+            return Orientation.getOrientationFromExif(Integer.parseInt(exif));
         } else {
-            return Orientation.getOrientationFromExif(Integer.parseInt(or));
+            return Orientation.getOrientationFromIPTC(iptc);
         }
     }
 
     /**
      * Gets the the picture orientation. This methods gets the EXIF orientation
      * code.
+     *
      * @return the orientation EXIF code, or <code>-1</code> if the orientation
-     * was not extracted
+     *         was not extracted
      * @see ImageMetadata#getOrientation()
      */
     public int getExifOrientation() {
@@ -613,11 +451,109 @@ public class ImageMetadata {
 
     /**
      * Gets the location metadata.
+     *
      * @return the location or <code>null</code> if the location was not contained
-     * in the metadata
+     *         in the metadata
      */
     public Location getLocation() {
         return m_location;
+    }
+
+    /**
+     * Gets the IPTC ObjectName if exists
+     * @return the ObjectName, or <code>null</code> if
+     * the metadata does not exist
+     */
+    public String getTitle() {
+        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_OBJECT_NAME);
+    }
+
+    public void setTitle(String value) {
+        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_OBJECT_NAME, value);
+    }
+
+    /**
+     * Gets the IPTC keywords.
+     * @return the list of keywords, empty if there are no keywords
+     */
+    public List<String> getKeywords() {
+        return m_iptc.getValues(IPTCConstants.IPTC_TYPE_KEYWORDS.type);
+    }
+
+    public void setKeywords(List<String> values) {
+        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_KEYWORDS, values);
+    }
+
+    public String getByLine() {
+        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_BYLINE);
+    }
+
+    public void setByLine(String value) {
+        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_BYLINE, value);
+    }
+
+    public String getByLineTitle() {
+        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_BYLINE_TITLE);
+    }
+
+    public void setByLineTitle(String value) {
+        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_BYLINE_TITLE, value);
+    }
+
+    public String getHeadLine() {
+        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_HEADLINE);
+    }
+
+    public void setHeadline(String value) {
+        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_HEADLINE, value);
+    }
+
+    public String getCity() {
+        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_CITY);
+    }
+
+    public void setCity(String value) {
+        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_CITY, value);
+    }
+
+    public String getState() {
+        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_PROVINCE_STATE);
+    }
+
+    public void setState(String value) {
+        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_PROVINCE_STATE, value);
+    }
+
+    public String getCountry() {
+        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_COUNTRY_PRIMARY_LOCATION_NAME);
+    }
+
+    public void setCountry(String value) {
+        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_COUNTRY_PRIMARY_LOCATION_NAME, value);
+    }
+
+    public String getCopyright() {
+        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_COPYRIGHT_NOTICE);
+    }
+
+    public void setCopyright(String value) {
+        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_COPYRIGHT_NOTICE, value);
+    }
+
+    public String getCaption() {
+        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_CAPTION_ABSTRACT);
+    }
+
+    public void setCaption(String value) {
+        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_CAPTION_ABSTRACT, value);
+    }
+
+    public String getEditor() {
+        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_WRITER_EDITOR);
+    }
+
+    public void setEditor(String value) {
+        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_WRITER_EDITOR, value);
     }
 
 }

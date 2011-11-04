@@ -1,18 +1,16 @@
 package de.akquinet.commons.image.io.test;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
 
+import de.akquinet.commons.image.io.*;
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
-import de.akquinet.commons.image.io.Format;
-import de.akquinet.commons.image.io.Image;
-import de.akquinet.commons.image.io.ImageMetadata;
-import de.akquinet.commons.image.io.ImageMetadata.Algorithm;
-import de.akquinet.commons.image.io.ImageMetadata.ColorType;
-import de.akquinet.commons.image.io.ImageMetadata.Orientation;
 
 public class ImageMetadataTest {
 
@@ -321,6 +319,73 @@ public class ImageMetadataTest {
 
         Assert.assertNull(metadata.getMake());
         Assert.assertNull(metadata.getModel());
+    }
+
+    @Test
+    public void testMetadataForJPGAfterRewrite() throws IOException {
+        Image img = new Image(JPG);
+        File out = File.createTempFile("test", "rewritten.jpg");
+        img.write(out);
+        img = new Image(out);
+        ImageMetadata metadata = img.getMetadata();
+
+        // Size + Format
+        Assert.assertEquals(Format.JPEG, metadata.getFormat());
+        Assert.assertEquals(Algorithm.JPEG, metadata.getAlgorithm());
+        Assert.assertEquals("JPEG (Joint Photographic Experts Group) Format", metadata.getFormatName());
+        Assert.assertEquals(500, metadata.getWidth());
+        Assert.assertEquals(300, metadata.getHeight());
+
+        // Creation date
+        Assert.assertNotNull(metadata.getCreationDate());
+        System.out.println(metadata.getCreationDate());
+
+        // Color Type
+        Assert.assertEquals(ColorType.RGB, metadata.getColorType());
+
+        // DPI
+        Assert.assertEquals(72, metadata.getDpiWidth());
+        Assert.assertEquals(72, metadata.getDpiHeight());
+
+        // Orientation
+        Assert.assertEquals(1, metadata.getExifOrientation());
+        Assert.assertEquals(Orientation.LANDSCAPE, metadata.getOrientation());
+
+        // Misc details
+        Assert.assertEquals(1, metadata.getNumberOfImages());
+        Assert.assertEquals(24, metadata.getBitsPerPixel());
+
+        // Missing metadata
+        Assert.assertFalse(metadata.isProgressive());
+        Assert.assertFalse(metadata.isTransparent());
+        Assert.assertFalse(metadata.usesPalette());
+
+        Assert.assertNull(metadata.getMake());
+        Assert.assertNull(metadata.getModel());
+    }
+
+    @Test
+    public void testWriteJPEG() throws Exception {
+        Image origin = new Image(new File("src/test/resources/jpg/IMG_0467.jpg"));
+        System.out.println(origin.getMetadata().getKeywords());
+
+        List<String> keywords = origin.getMetadata().getKeywords();
+        keywords.add("stuff");
+        origin.getMetadata().setKeywords(keywords);
+
+        JPEGWriter writer = new JPEGWriter();
+        writer.load(origin);
+
+        File out = File.createTempFile("xxx", "rewritten.jpg");
+        FileOutputStream fos = new FileOutputStream(out);
+        writer.write(fos);
+        fos.close();
+
+        Image image = new Image(out);
+        System.out.println(image.getMetadata().getAlgorithm());
+        System.out.println(image.getMetadata().getKeywords());
+        System.out.println(out.getAbsolutePath());
+
     }
 
 

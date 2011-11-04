@@ -1,23 +1,17 @@
 package de.akquinet.commons.image.io;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.sanselan.ImageReadException;
+import org.apache.sanselan.ImageWriteException;
 
 /**
  * The {@link Image} class represents pictures and provides
  * basics action to extract metadata, IO and manipulation.
  */
 public class Image {
-
-    /**
-     * The wrapped buffered image.
-     */
-    private BufferedImage m_bufferedImage;
 
     /**
      * The format of the image.
@@ -31,9 +25,20 @@ public class Image {
     private final File m_file;
 
     /**
+     * If the image is loaded from a byte[] or from an input stream, the read bytes,
+     * <code>null</code> otherwise.
+     */
+    private byte[] m_bytes;
+
+    /**
      * The extracted metadata (cached to avoid heavy computation).
      */
     private ImageMetadata m_metadata;
+
+    /**
+     * The wrapped buffered image
+     */
+    private BufferedImage m_bufferedImage;
 
     /**
      * Creates a Image from the given {@link BufferedImage} and {@link Format}.
@@ -53,8 +58,9 @@ public class Image {
 
         m_bufferedImage = img;
         m_format = format;
-
         m_file = null;
+        m_bytes = null;
+
     }
 
     /**
@@ -68,11 +74,10 @@ public class Image {
             throw new IllegalArgumentException(
                     "Cannot read image : the input is null");
         }
-        byte[] bytes = IOUtils.toByteArray(is);
+        m_bytes = IOUtils.toByteArray(is);
         IOHelper.closeQuietly(is);
-        m_bufferedImage = ImageIOUtils.getIOHelper().read(bytes);
-        m_format = ImageIOUtils.getIOHelper().getFormat(bytes);
-
+        m_bufferedImage = ImageIOUtils.getIOHelper().read(m_bytes);
+        m_format = ImageIOUtils.getIOHelper().getFormat(m_bytes);
         m_file = null;
     }
 
@@ -89,8 +94,8 @@ public class Image {
         }
         m_bufferedImage = ImageIOUtils.getIOHelper().read(file);
         m_format = ImageIOUtils.getIOHelper().getFormat(file);
-
         m_file = file;
+        m_bytes = null;
     }
 
     /**
@@ -106,7 +111,7 @@ public class Image {
         }
         m_bufferedImage = ImageIOUtils.getIOHelper().read(bytes);
         m_format = ImageIOUtils.getIOHelper().getFormat(bytes);
-
+        m_bytes = bytes;
         m_file = null;
     }
 
@@ -149,7 +154,37 @@ public class Image {
      * @see Image#getBytes()
      */
     public synchronized byte[] getBytes(Format format) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            write(out, format);
+            return out.toByteArray();
+        } finally {
+            out.close();
+        }
+    }
+
+    /**
+     * Gets the byte array of the image from the buffered image.
+     * This byte array does <strong>NOT</strong> contain metadata.
+     * @param format the output format
+     * @return the resulting byte array
+     * @throws IOException if the image cannot be read
+     */
+    public synchronized byte[] getRawBytes(Format format) throws IOException {
+        if (format == m_format && m_bytes != null) {
+            return  m_bytes;
+        }
         return ImageIOUtils.getIOHelper().getBytes(m_bufferedImage, format);
+    }
+
+    /**
+     * Gets the byte array of the image from the buffered image.
+     * This byte array does <strong>NOT</strong> contain metadata.
+     * @return the resulting byte array
+     * @throws IOException if the image cannot be read
+     */
+    public synchronized byte[] getRawBytes() throws IOException {
+        return getRawBytes(m_format);
     }
 
     /**
@@ -159,7 +194,7 @@ public class Image {
      * @see {@link Image#write(File, Format)}
      */
     public synchronized void write(File out) throws IOException {
-        ImageIOUtils.getIOHelper().write(m_bufferedImage, out, m_format);
+        write(out, m_format);
     }
 
     /**
@@ -182,7 +217,19 @@ public class Image {
      * @see {@link Image#write(File)}
      */
     public synchronized void write(File out, Format format) throws IOException {
-        ImageIOUtils.getIOHelper().write(m_bufferedImage, out, format);
+        // For JPEG, we use JPEGWriter because of the EXIF and IPTC metadata
+        if(format == Format.JPEG) {
+            JPEGWriter writer = new JPEGWriter();
+            OutputStream fos = new FileOutputStream(out);
+            try {
+                writer.load(this);
+                writer.write(fos);
+            } finally {
+                fos.close();
+            }
+        } else {
+            ImageIOUtils.getIOHelper().write(m_bufferedImage, out, format);
+        }
     }
 
     /**
@@ -195,8 +242,14 @@ public class Image {
      * @see Image#write(OutputStream)
      */
     public synchronized void write(OutputStream out, Format format) throws IOException {
-        byte[] bytes = ImageIOUtils.getIOHelper().getBytes(m_bufferedImage, format);
-        out.write(bytes);
+        if(format == Format.JPEG) {
+            JPEGWriter writer = new JPEGWriter();
+            writer.load(this);
+            writer.write(out);
+        } else {
+            byte[] bytes = ImageIOUtils.getIOHelper().getBytes(m_bufferedImage, format);
+            out.write(bytes);
+        }
     }
 
     /**
