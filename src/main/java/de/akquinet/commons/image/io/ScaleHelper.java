@@ -217,4 +217,59 @@ public class ScaleHelper {
         return newImage;
     }
 
+    /**
+     * Scales the given image. the resulting image would have the
+     * given width. The height will be computed automatically.
+     * @param image the image
+     * @param width the desired width
+     * @return the scaled image
+     * @throws IOException if the image cannot be scaled
+     */
+    public Image scaleToWidth(Image image, int width) throws IOException {
+        float ratio = (float) width / (float) image.getWidth();
+        BufferedImage bi = scale(image.getBufferedImage(), ratio);
+        return new Image(bi, image.getFormat());
+    }
+
+    /**
+     * Scales the given image. the resulting image would have the
+     * given width. The height will be computed automatically.
+     * @param image the image
+     * @param width the desired width
+     * @return the scaled buffered image
+     * @throws IOException if the image cannot be scaled
+     */
+    public BufferedImage scaleToWidth(BufferedImage image, int width) throws IOException {
+        float ratio = (float) width / (float) image.getWidth();
+        return scale(image, ratio);
+    }
+
+    /**
+     * Scales the given image. the resulting image would have the
+     * given height. The height will be computed automatically.
+     * @param image the image
+     * @param height the desired height
+     * @return the scaled image
+     * @throws IOException if the image cannot be scaled
+     */
+    public Image scaleToHeight(Image image, int height) throws IOException {
+        float ratio = (float) height / (float) image.getHeight();
+        BufferedImage bi = scale(image.getBufferedImage(), ratio);
+        return new Image(bi, image.getFormat());
+    }
+
+    /**
+     * Scales the given image. the resulting image would have the
+     * given height. The height will be computed automatically.
+     * @param image the image
+     * @param height the desired height
+     * @return the scaled buffered image
+     * @throws IOException if the image cannot be scaled
+     */
+    public BufferedImage scaleToHeight(BufferedImage image, int height) throws IOException {
+        float ratio = (float) height / (float) image.getHeight();
+        return scale(image, ratio);
+    }
+
+
 }

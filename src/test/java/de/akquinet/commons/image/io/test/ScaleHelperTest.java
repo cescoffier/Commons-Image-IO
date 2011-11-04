@@ -105,4 +105,32 @@ public class ScaleHelperTest {
         Assert.assertEquals((int) (PNG_HEIGHT / 4), img.getHeight());
     }
 
+    @Test
+    public void testScaleToHeight() throws IOException {
+        BufferedImage img = m_scaler.scaleToHeight(m_img.read(JPG), 100);
+        Assert.assertEquals(JPG_WIDTH / 3, img.getWidth());
+        Assert.assertEquals(100, img.getHeight());
+        m_img.write(img, new File(m_tmp, "JPG_h_100.jpg"), Format.JPEG);
+
+
+        img = m_scaler.scaleToHeight(m_img.read(JPG), 600);
+        Assert.assertEquals(JPG_WIDTH * 2, img.getWidth());
+        Assert.assertEquals(600, img.getHeight());
+        m_img.write(img, new File(m_tmp, "JPG_h_600.jpg"), Format.JPEG);
+    }
+
+    @Test
+    public void testScaleToWidth() throws IOException {
+        BufferedImage img = m_scaler.scaleToWidth(m_img.read(JPG), 100);
+        Assert.assertEquals(JPG_HEIGHT / 5, img.getHeight());
+        Assert.assertEquals(100, img.getWidth());
+        m_img.write(img, new File(m_tmp, "JPG_w_100.jpg"), Format.JPEG);
+
+
+        img = m_scaler.scaleToWidth(m_img.read(JPG), 1000);
+        Assert.assertEquals(JPG_HEIGHT * 2, img.getHeight());
+        Assert.assertEquals(1000, img.getWidth());
+        m_img.write(img, new File(m_tmp, "JPG_w_1000.jpg"), Format.JPEG);
+    }
+
 }
