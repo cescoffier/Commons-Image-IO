@@ -193,7 +193,9 @@ public class ImageMetadataTest {
 
         // Orientation
         Assert.assertEquals(6, metadata.getExifOrientation());
-        Assert.assertEquals(Orientation.PORTRAIT, metadata.getOrientation());
+        // Attention: Preview and other image viewer may do an image rotation because of the EXIF metadata
+        // But the raw image is in LANDSCAPE.
+        Assert.assertEquals(Orientation.LANDSCAPE, metadata.getOrientation());
 
         // Misc details
         Assert.assertEquals(1, metadata.getNumberOfImages());
@@ -240,7 +242,7 @@ public class ImageMetadataTest {
         Assert.assertEquals(72, metadata.getDpiHeight());
 
         // Orientation
-        Assert.assertEquals(Orientation.UNKNOWN, metadata.getOrientation());
+        Assert.assertEquals(Orientation.LANDSCAPE, metadata.getOrientation());
 
         // Misc details
         Assert.assertEquals(21, metadata.getBitsPerPixel());
@@ -273,7 +275,7 @@ public class ImageMetadataTest {
         Assert.assertEquals(-1, metadata.getDpiHeight());
 
         // Orientation
-        Assert.assertEquals(Orientation.UNKNOWN, metadata.getOrientation());
+        Assert.assertEquals(Orientation.PORTRAIT, metadata.getOrientation());
 
         // Misc details
         Assert.assertEquals(24, metadata.getBitsPerPixel());
@@ -306,7 +308,7 @@ public class ImageMetadataTest {
         Assert.assertEquals(-1, metadata.getDpiHeight());
 
         // Orientation
-        Assert.assertEquals(Orientation.UNKNOWN, metadata.getOrientation());
+        Assert.assertEquals(Orientation.LANDSCAPE, metadata.getOrientation());
 
         // Misc details
         Assert.assertEquals(32, metadata.getBitsPerPixel());

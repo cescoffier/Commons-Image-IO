@@ -4,7 +4,10 @@ package de.akquinet.commons.image.io;
  * The different orientations.
  * The {@link Orientation#UNKNOWN} value is used when the extraction
  * is not possible, or if the orientation is not directly mappable to
- * portrait or landscape. Orientation is an EXIF or IPTC metadata.
+ * portrait or landscape. Orientation is an IPTC metadata or computed from
+ * the height x width ratio.
+ * We can't use the EXIF metadata because if the image it then cropped or
+ * rotated using software the EXIF orientation is not modified
  */
 public enum Orientation {
     PORTRAIT,
@@ -13,22 +16,19 @@ public enum Orientation {
     UNKNOWN;
 
     /**
-     * Gets the {@link Orientation} enumerated value for the EXIF orientation
-     * (integer from 1 to 8).
+     * Gets the {@link Orientation} enumerated value from the image dimension
      *
-     * @param orientation the EXIF Orientation
-     * @return
+     * @param width the image width
+     * @param height the image height
+     * @return the orientation
      */
-    public static Orientation getOrientationFromExif(int orientation) {
-        switch (orientation) {
-            case 1:
-            case 3:
-                return LANDSCAPE;
-            case 8:
-            case 6:
-                return PORTRAIT;
-            default:
-                return UNKNOWN;
+    public static Orientation getOrientationFromDimension(int width, int height) {
+        if (width > height) {
+            return LANDSCAPE;
+        } else if (height > width) {
+            return PORTRAIT;
+        } else {
+            return SQUARE;
         }
     }
 

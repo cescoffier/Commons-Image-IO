@@ -418,16 +418,13 @@ public class ImageMetadata {
     /**
      * Gets the picture orientation.
      *
-     * @return the orientation, {@link Orientation#UNKNOWN} is returned
-     *         if the orientation was not extracted.
+     * @return the orientation determined from the IPTC metadata if present
+     * or from the image dimension.
      */
     public Orientation getOrientation() {
-        String exif = m_metadata.get("Orientation");
         String iptc = m_iptc.getValue(IPTCConstants.IPTC_TYPE_IMAGE_ORIENTATION);
-        if (exif == null  && iptc == null) {
-            return Orientation.UNKNOWN;
-        } else if (exif != null) {
-            return Orientation.getOrientationFromExif(Integer.parseInt(exif));
+        if (iptc == null) {
+            return Orientation.getOrientationFromDimension(getWidth(), getHeight());
         } else {
             return Orientation.getOrientationFromIPTC(iptc);
         }
