@@ -143,47 +143,47 @@ public class IPTCTest {
 
     @Test
     public void testIPTCExtraction() throws IOException, ImageReadException {
-         File file = new File("src/test/resources/jpg/IMG_0467.jpg");
-         JpegImageMetadata metadata = (JpegImageMetadata) Sanselan
-                    .getMetadata(file, null);
-            assertNotNull(metadata);
-            assertNotNull(metadata.getPhotoshop());
+        File file = new File("src/test/resources/jpg/IMG_0467.jpg");
+        JpegImageMetadata metadata = (JpegImageMetadata) Sanselan
+                .getMetadata(file, null);
+        assertNotNull(metadata);
+        assertNotNull(metadata.getPhotoshop());
 
-            metadata.getPhotoshop().dump();
-            // if(metadata.getPhotoshop().getItems().size()>0)
-            // Debug.debug("iptc size",
-            // metadata.getPhotoshop().getItems().size());
+        metadata.getPhotoshop().dump();
+        // if(metadata.getPhotoshop().getItems().size()>0)
+        // Debug.debug("iptc size",
+        // metadata.getPhotoshop().getItems().size());
 
-            JpegPhotoshopMetadata psMetadata = metadata.getPhotoshop();
-            List oldRecords = psMetadata.photoshopApp13Data.getRecords();
+        JpegPhotoshopMetadata psMetadata = metadata.getPhotoshop();
+        List oldRecords = psMetadata.photoshopApp13Data.getRecords();
 
-            System.out.println();
-            for (int j = 0; j < oldRecords.size(); j++)
-            {
-                IPTCRecord record = (IPTCRecord) oldRecords.get(j);
-                //if (record.iptcType.type != IPTCConstants.IPTC_TYPE_CITY.type)
-                    System.out.println("Key: " + record.iptcType.name + " (0x"
-                            + Integer.toHexString(record.iptcType.type)
-                            + "), value: " + record.value);
-            }
+        System.out.println();
+        for (int j = 0; j < oldRecords.size(); j++) {
+            IPTCRecord record = (IPTCRecord) oldRecords.get(j);
+            //if (record.iptcType.type != IPTCConstants.IPTC_TYPE_CITY.type)
+            System.out.println("Key: " + record.iptcType.name + " (0x"
+                    + Integer.toHexString(record.iptcType.type)
+                    + "), value: " + record.value);
+        }
     }
 
     @Test
     public void testXMPExtraction() throws IOException, ImageReadException {
         File file = new File("src/test/resources/jpg/IMG_0467.jpg");
-         JpegImageMetadata metadata = (JpegImageMetadata) Sanselan
-                    .getMetadata(file, null);
-            assertNotNull(metadata);
-            assertNotNull(metadata.getPhotoshop());
+        JpegImageMetadata metadata = (JpegImageMetadata) Sanselan
+                .getMetadata(file, null);
+        assertNotNull(metadata);
+        assertNotNull(metadata.getPhotoshop());
 
-           Map params = new HashMap();
-           String xmpXml = new JpegImageParser().getXmpXml(new ByteSourceFile(file), params );
-            System.out.println(xmpXml);
+        Map params = new HashMap();
+        String xmpXml = new JpegImageParser().getXmpXml(new ByteSourceFile(file), params);
+        System.out.println(xmpXml);
     }
 
     public static final File PNG = new File("src/test/resources/png/wilber-huge-alpha.png");
+
     @Test
-    public void testMetadataEditionOnPNG() throws  IOException {
+    public void testMetadataEditionOnPNG() throws IOException {
         Image image = new Image(new FileInputStream(PNG));
         assertNull(image.getMetadata().getIPTCMetadata());
         image.getMetadata().setByLine("A test");
@@ -198,7 +198,7 @@ public class IPTCTest {
     }
 
     @Test
-    public void testMetadataEditionOnBufferedImage() throws  IOException {
+    public void testMetadataEditionOnBufferedImage() throws IOException {
         Image image = new Image(ImageIOUtils.getIOHelper().read(PNG), Format.PNG);
         assertNull(image.getMetadata().getIPTCMetadata());
         image.getMetadata().setByLine("A test");
@@ -210,6 +210,27 @@ public class IPTCTest {
         assertNotNull(image.getMetadata());
         assertEquals("A test", image.getMetadata().getByLine());
         System.out.println(out.getAbsolutePath());
+    }
+
+    @Test
+    public void testPreviewMetadata() throws IOException, ImageReadException {
+        File file = new File("src/test/resources/jpg/IMG_1626.jpg");
+        Image origin = new Image(file);
+
+        assertTrue(origin.getMetadata().getKeywords().contains("Flore"));
+        assertTrue(origin.getMetadata().getKeywords().contains("fauteuil"));
+
+        List<String> tags = origin.getMetadata().getKeywords();
+        tags.add("a_test");
+        origin.getMetadata().setKeywords(tags);
+        File out = File.createTempFile("commons-image-io", "iptc_rewritten.jpg");
+        origin.write(out);
+
+        origin = new Image(out);
+
+        assertTrue(origin.getMetadata().getKeywords().contains("Flore"));
+        assertTrue(origin.getMetadata().getKeywords().contains("fauteuil"));
+        assertTrue(origin.getMetadata().getKeywords().contains("a_test"));
     }
 
 }
