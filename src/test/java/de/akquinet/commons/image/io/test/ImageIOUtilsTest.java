@@ -1,13 +1,11 @@
 package de.akquinet.commons.image.io.test;
 
-import junit.framework.Assert;
-
-import org.junit.Test;
-
 import de.akquinet.commons.image.io.IOHelper;
 import de.akquinet.commons.image.io.ImageIOUtils;
 import de.akquinet.commons.image.io.ScaleHelper;
 import de.akquinet.commons.image.io.ScaleHelper.Interpolation;
+import junit.framework.Assert;
+import org.junit.Test;
 
 public class ImageIOUtilsTest {
 

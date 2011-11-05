@@ -1,15 +1,14 @@
 package de.akquinet.commons.image.io.test;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-
+import de.akquinet.commons.image.io.ConversionHelper;
+import de.akquinet.commons.image.io.ImageIOUtils;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.akquinet.commons.image.io.ConversionHelper;
-import de.akquinet.commons.image.io.ImageIOUtils;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 public class ConverterHelperTest {
 

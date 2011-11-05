@@ -1,14 +1,13 @@
 package de.akquinet.commons.image.io.test;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
+import de.akquinet.commons.image.io.Format;
+import de.akquinet.commons.image.io.IOHelper;
 import org.junit.Assert;
 import org.junit.Test;
 
-import de.akquinet.commons.image.io.IOHelper;
-import de.akquinet.commons.image.io.Format;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class CanReadAndWriteTest {
 

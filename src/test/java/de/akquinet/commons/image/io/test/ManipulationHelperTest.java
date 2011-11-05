@@ -1,15 +1,13 @@
 package de.akquinet.commons.image.io.test;
 
-import java.awt.Color;
-import java.io.File;
-import java.io.IOException;
-
-import junit.framework.Assert;
-
-import org.junit.Test;
-
 import de.akquinet.commons.image.io.Image;
 import de.akquinet.commons.image.io.ManipulationHelper;
+import junit.framework.Assert;
+import org.junit.Test;
+
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 
 public class ManipulationHelperTest {
 

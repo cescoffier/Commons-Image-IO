@@ -1,15 +1,13 @@
 package de.akquinet.commons.image.io.test;
 
+import de.akquinet.commons.image.io.*;
+import junit.framework.Assert;
+import org.junit.Test;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
-
-import de.akquinet.commons.image.io.*;
-import junit.framework.Assert;
-
-import org.junit.Ignore;
-import org.junit.Test;
 
 
 public class ImageMetadataTest {

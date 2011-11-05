@@ -1,17 +1,16 @@
 package de.akquinet.commons.image.io.test;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-
+import de.akquinet.commons.image.io.Format;
+import de.akquinet.commons.image.io.IOHelper;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import de.akquinet.commons.image.io.IOHelper;
-import de.akquinet.commons.image.io.Format;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 
 public class ReadAndWriteTest {
 

@@ -1,8 +1,8 @@
 package de.akquinet.commons.image.io.test;
 
-import javax.imageio.ImageIO;
-
 import org.junit.Test;
+
+import javax.imageio.ImageIO;
 
 public class ImageIOTest {
 
