@@ -214,7 +214,7 @@ public class IPTCTest {
 
     @Test
     public void testPreviewMetadata() throws IOException, ImageReadException {
-        File file = new File("src/test/resources/jpg/IMG_1626.jpg");
+        File file = new File("src/test/resources/jpg/IMG_1626.JPG");
         Image origin = new Image(file);
 
         assertTrue(origin.getMetadata().getKeywords().contains("Flore"));
