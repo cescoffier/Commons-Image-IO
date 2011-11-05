@@ -20,13 +20,17 @@ public enum Format {
     /**
      *  GIF
      */
-    GIF;
+    GIF,
+    /**
+     * Unknown format
+     */
+    UNKNOWN;
 
     /**
      * Gets the {@link Format} enum value for the given extension.
      * The extension must not be prefixed by '.'.
      * @param ext the extension
-     * @return the {@link Format} enum value or <code>null</code>
+     * @return the {@link Format} enum value or <code>UNKNOWN</code>
      * if the extension is not associated with any supported format.
      */
     public static Format getFormatByExtension(String ext) {
@@ -42,7 +46,7 @@ public enum Format {
         } else if (ext.toLowerCase().equals("gif")) {
             return GIF;
         } else {
-            return null;
+            return UNKNOWN;
         }
     }
 
