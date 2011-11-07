@@ -37,7 +37,8 @@ public enum Orientation {
      * (L, P or S).
      *
      * @param orientation the IPTC Orientation
-     * @return
+     * @return the matching Orientation. <code>UNKNOWN</code> if no orientations match the
+      * given String.
      */
     public static Orientation getOrientationFromIPTC(String orientation) {
         if ("L".equals(orientation)) {

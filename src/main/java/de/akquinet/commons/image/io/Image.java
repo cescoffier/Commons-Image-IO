@@ -4,8 +4,6 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.sanselan.ImageReadException;
-import org.apache.sanselan.ImageWriteException;
 
 /**
  * The {@link Image} class represents pictures and provides
@@ -150,8 +148,8 @@ public class Image {
      * @param format the output format
      * @return the byte array of the converted image
      * @throws IOException if the image cannot be converted
-     * @see {@link ConversionHelper}
-     * @see Image#getBytes()
+     * @see ConversionHelper
+     * @see de.akquinet.commons.image.io.Image#getBytes()
      */
     public synchronized byte[] getBytes(Format format) throws IOException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -191,7 +189,7 @@ public class Image {
      * Writes the image to the specified file using the original format.
      * @param out the output file
      * @throws IOException if the image cannot be written in the file
-     * @see {@link Image#write(File, Format)}
+     * @see Image#write(java.io.File, Format)
      */
     public synchronized void write(File out) throws IOException {
         write(out, m_format);
@@ -214,7 +212,7 @@ public class Image {
      * @param out the output file
      * @param format the output format
      * @throws IOException if the image cannot be written in the file
-     * @see {@link Image#write(File)}
+     * @see Image#write(File)
      */
     public synchronized void write(File out, Format format) throws IOException {
         // For JPEG, we use JPEGWriter because of the EXIF and IPTC metadata
