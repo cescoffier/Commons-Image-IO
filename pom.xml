@@ -9,7 +9,7 @@
 
     <groupId>de.akquinet.commons.imageio</groupId>
     <artifactId>commons-image-io</artifactId>
-    <version>0.3.2-SNAPSHOT</version>
+    <version>0.3.2</version>
     <name>akquinet commons ~ Image IO</name>
     <description>A library simplifying the usage of image.io</description>
     <inceptionYear>2011</inceptionYear>
