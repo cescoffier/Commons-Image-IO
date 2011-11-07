@@ -115,7 +115,7 @@
               <configuration>
                 <instructions>
                     <Export-Package>de.akquinet.commons.image.io;version=${project.version},
-                        org.apache.sanselan*;version=0.98</Export-Package>
+                        org.apache.sanselan*;version=0.98;-split-package=merge-first</Export-Package>
                     <Embed-Dependency>commons-sanselan;inline=true</Embed-Dependency>
                 </instructions>
               </configuration>
