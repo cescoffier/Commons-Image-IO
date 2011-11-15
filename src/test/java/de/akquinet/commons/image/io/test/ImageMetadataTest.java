@@ -395,7 +395,4 @@ public class ImageMetadataTest {
         Assert.assertEquals(72, origin.getMetadata().getDpiWidth());
     }
 
-
-
-
 }
