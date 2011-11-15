@@ -271,8 +271,8 @@ public class ImageMetadataTest {
         Assert.assertEquals(ColorType.RGB, metadata.getColorType());
 
         // DPI
-        Assert.assertEquals(-1, metadata.getDpiWidth());
-        Assert.assertEquals(-1, metadata.getDpiHeight());
+        Assert.assertEquals(72, metadata.getDpiWidth());
+        Assert.assertEquals(72, metadata.getDpiHeight());
 
         // Orientation
         Assert.assertEquals(Orientation.PORTRAIT, metadata.getOrientation());
@@ -304,8 +304,8 @@ public class ImageMetadataTest {
         Assert.assertEquals(ColorType.RGB, metadata.getColorType());
 
         // DPI
-        Assert.assertEquals(-1, metadata.getDpiWidth());
-        Assert.assertEquals(-1, metadata.getDpiHeight());
+        Assert.assertEquals(72, metadata.getDpiWidth());
+        Assert.assertEquals(72, metadata.getDpiHeight());
 
         // Orientation
         Assert.assertEquals(Orientation.LANDSCAPE, metadata.getOrientation());
