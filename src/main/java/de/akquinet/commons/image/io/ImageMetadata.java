@@ -48,9 +48,9 @@ public class ImageMetadata {
 
     private final ColorType m_colorType;
 
-    private final int m_dpiHeight;
+    private int m_dpiHeight;
 
-    private final int m_dpiWidth;
+    private int m_dpiWidth;
 
     private final boolean m_isTransparent;
 
@@ -105,6 +105,16 @@ public class ImageMetadata {
 
         m_dpiHeight = info.getPhysicalHeightDpi();
         m_dpiWidth = info.getPhysicalWidthDpi();
+
+        if (m_dpiWidth == -1) {
+            // No unit, assume 72.
+            m_dpiWidth = 72;
+        }
+
+        if (m_dpiHeight == -1) {
+             // No unit, assume 72.
+            m_dpiHeight = 72;
+        }
 
         m_isTransparent = info.isTransparent();
         m_isProgressive = info.isProgressive();

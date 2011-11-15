@@ -388,6 +388,13 @@ public class ImageMetadataTest {
 
     }
 
+    @Test
+    public void testResolutionOnAndyExploded() throws Exception {
+        Image origin = new Image(new File("src/test/resources/jpg/andyexploded.jpg"));
+        Assert.assertEquals(72, origin.getMetadata().getDpiHeight());
+        Assert.assertEquals(72, origin.getMetadata().getDpiWidth());
+    }
+
 
 
 
