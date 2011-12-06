@@ -1,8 +1,11 @@
 package de.akquinet.commons.image.io;
 
+import org.apache.sanselan.ImageFormat;
 import org.apache.sanselan.ImageReadException;
+import org.apache.sanselan.ImageWriteException;
 import org.apache.sanselan.Sanselan;
 
+import java.awt.color.CMMException;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -23,22 +26,34 @@ import javax.imageio.stream.ImageOutputStream;
  */
 public class IOHelper {
 
-
     /**
      * Reads a {@link BufferedImage} from the input file
+     *
      * @param f the file to read
      * @return the {@link BufferedImage}
      * @throws IOException if the file is <code>null</code>, not existing,
-     * or if the file is not an image
+     *                     or if the file is not an image
      */
     public BufferedImage read(File f) throws IOException {
         if (f == null) {
             throw new IOException("The input file is null");
         }
         try {
+            // Try image io
+            return ImageIO.read(f);
+        } catch (IOException e) {
+            // Ignore, will fall back to Sanselan
+        } catch (CMMException e) {
+            // CMMException is a runtime exception
+            // Ignore, will fall back to Sanselan
+        }
+
+        // As a fall back use Sanselan
+        try {
             return Sanselan.getBufferedImage(f);
         } catch (ImageReadException e) {
-            throw new IOException("Cannot read buffered image from file", e);
+            // Both failed.
+            throw new IOException("Cannot read image " + f.getAbsolutePath(), e);
         }
     }
 
@@ -46,24 +61,38 @@ public class IOHelper {
      * Reads a {@link BufferedImage} from the given input stream.
      * This method does not close the input stream, so must be closed by the
      * caller.
+     *
      * @param is the input stream
      * @return the {@link BufferedImage}
      * @throws IOException if the input stream is <code>null</code>, cannot be read,
-     * or does not depict an image
+     *                     or does not depict an image
      */
     public BufferedImage read(InputStream is) throws IOException {
         if (is == null) {
             throw new IOException("The input stream is null");
         }
-        return ImageIO.read(is);
+
+        try {
+            return ImageIO.read(is);
+        } catch (IOException e) {
+            // Ignore, will try Sanselan.
+        }
+
+        try {
+            return Sanselan.getBufferedImage(is);
+        } catch (ImageReadException e) {
+            // Both failed.
+            throw new IOException("Cannot read image from byte array", e);
+        }
     }
 
     /**
      * Reads a {@link BufferedImage} from the given byte array.
+     *
      * @param bytes the bytes
      * @return the {@link BufferedImage}
      * @throws IOException if the byte array is <code>null</code>,
-     * or does not depict an image
+     *                     or does not depict an image
      */
     public BufferedImage read(byte[] bytes) throws IOException {
         if (bytes == null) {
@@ -76,7 +105,8 @@ public class IOHelper {
             BufferedImage img = Sanselan.getBufferedImage(bytes);
             return img;
         } catch (ImageReadException e) {
-            throw new IOException("Cannot read the buffered image", e);
+            // As a fall back use the Image-IO
+            return ImageIO.read(is);
         } finally {
             closeQuietly(is);
         }
@@ -85,10 +115,11 @@ public class IOHelper {
 
     /**
      * Gets the format of the given byte array.
+     *
      * @param bytes the bytes
      * @return the image format
      * @throws IOException if the format cannot be extracted, or is
-     * not supported
+     *                     not supported
      */
     public Format getFormat(byte[] bytes) throws IOException {
         InputStream is = new ByteArrayInputStream(bytes);
@@ -104,10 +135,11 @@ public class IOHelper {
 
     /**
      * Gets the format of the given file.
+     *
      * @param file the file
      * @return the image format
      * @throws IOException if the format cannot be extracted, or is
-     * not supported
+     *                     not supported
      */
     public Format getFormat(File file) throws IOException {
         String v = getFormatName(file);
@@ -121,10 +153,11 @@ public class IOHelper {
     /**
      * Gets the format of the given input stream.
      * The input stream is closed by this method.
+     *
      * @param is the input stream
      * @return the image format
      * @throws IOException if the format cannot be extracted, or is
-     * not supported
+     *                     not supported
      */
     public Format getFormat(InputStream is) throws IOException {
         String v = getFormatName(is);
@@ -138,8 +171,9 @@ public class IOHelper {
 
     /**
      * Utility method to extract the format name from the given object.
+     *
      * @param o a {@link File} or an {@link InputStream} from which the format will
-     * be read
+     *          be read
      * @return the format name, <code>null</code> if the format name cannot be read
      */
     private static String getFormatName(Object o) {
@@ -155,7 +189,7 @@ public class IOHelper {
             }
 
             // Use the first reader
-            ImageReader reader = (ImageReader)iter.next();
+            ImageReader reader = (ImageReader) iter.next();
 
             // Close stream
             iis.close();
@@ -170,14 +204,15 @@ public class IOHelper {
 
     /**
      * Writes the given {@link BufferedImage} to the given {@link File}
+     *
      * @param image the image to write
-     * @param file the file where the image will be written
+     * @param file  the file where the image will be written
      * @throws IOException if the image cannot be written
      */
     public void write(BufferedImage image, File file) throws IOException {
         int indexOf = file.getName().lastIndexOf('.');
         Format format = null;
-        if (indexOf == -1 ) {
+        if (indexOf == -1) {
             // Use default format.
             format = Format.PNG;
         } else {
@@ -194,26 +229,33 @@ public class IOHelper {
     /**
      * Writes the given {@link BufferedImage} to the given {@link File} using the
      * specified {@link Format}
-     * @param image the image to write
-     * @param file the file where the image will be written
+     *
+     * @param image  the image to write
+     * @param file   the file where the image will be written
      * @param format the format used to write the file
      * @throws IOException if the image cannot be written
      */
     public void write(BufferedImage image, File file, Format format) throws IOException {
-        ImageWriter writer = getWriterForFormat(format);
-        if (writer != null) {
-            ImageOutputStream stream = ImageIO.createImageOutputStream(file);
-            writer.setOutput(stream);
-            writer.write(image);
-        } else {
-            throw new IOException("Cannot write image - unsupported format " + format);
+        try {
+            Sanselan.writeImage(image, file, Format.getSanselanImageFormat(format), null);
+        } catch (ImageWriteException e) {
+            // Fallback to image-io
+            ImageWriter writer = getWriterForFormat(format);
+            if (writer != null) {
+                ImageOutputStream stream = ImageIO.createImageOutputStream(file);
+                writer.setOutput(stream);
+                writer.write(image);
+            } else {
+                throw new IOException("Cannot write image - unsupported format " + format);
+            }
         }
     }
 
     /**
      * Gets the byte array for the given {@link BufferedImage} in the specified
      * {@link Format}
-     * @param image the image
+     *
+     * @param image  the image
      * @param format the output format
      * @return the resulting byte array
      * @throws IOException if the image cannot be converted
@@ -234,9 +276,10 @@ public class IOHelper {
 
     /**
      * Gets an {@link ImageWriter} for the given {@link Format}
+     *
      * @param format the format
      * @return the matching {@link ImageWriter} or <code>null</code>
-     * if no writer can be found for the given format
+     *         if no writer can be found for the given format
      */
     public ImageWriter getWriterForFormat(Format format) {
         Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(format.toString());
@@ -248,9 +291,10 @@ public class IOHelper {
 
     /**
      * Gets an {@link ImageReader} for the given {@link Format}
+     *
      * @param format the format
      * @return the matching {@link ImageReader} or <code>null</code>
-     * if no reader can be found for the given format
+     *         if no reader can be found for the given format
      */
     public ImageReader getReaderForFormat(Format format) {
         Iterator<ImageReader> readers = ImageIO.getImageReadersByFormatName(format.toString());
@@ -263,9 +307,10 @@ public class IOHelper {
     /**
      * Utility methods closing the given stream without throwing exception
      * in case of error.
+     *
      * @param stream the stream
      * @return <code>true</code> if the stream was closed correctly,
-     * <code>false</code> otherwise
+     *         <code>false</code> otherwise
      */
     public static boolean closeQuietly(Closeable stream) {
         try {
@@ -279,9 +324,10 @@ public class IOHelper {
 
     /**
      * Checks whether the given format can be read.
+     *
      * @param formatName the format
      * @return <code>true</code> if the format can be read,
-     * <code>false</code> otherwise
+     *         <code>false</code> otherwise
      */
     public boolean canReadFormat(String formatName) {
         if (formatName == null) {
@@ -293,9 +339,10 @@ public class IOHelper {
 
     /**
      * Checks whether the given format can be written.
+     *
      * @param formatName the format
      * @return <code>true</code> if the format can be written,
-     * <code>false</code> otherwise
+     *         <code>false</code> otherwise
      */
     public boolean canWriteFormat(String formatName) {
         if (formatName == null) {
@@ -307,9 +354,10 @@ public class IOHelper {
 
     /**
      * Checks whether the given extension can be read.
+     *
      * @param fileExt the file extension, without the <code>.</code>
      * @return <code>true</code> if the extension can be read,
-     * <code>false</code> otherwise
+     *         <code>false</code> otherwise
      */
     public boolean canReadExtension(String fileExt) {
         if (fileExt == null) {
@@ -321,9 +369,10 @@ public class IOHelper {
 
     /**
      * Checks whether the given extension can be written.
+     *
      * @param fileExt the file extension, without the <code>.</code>
      * @return <code>true</code> if the extension can be written,
-     * <code>false</code> otherwise
+     *         <code>false</code> otherwise
      */
     public boolean canWriteExtension(String fileExt) {
         if (fileExt == null) {
@@ -335,9 +384,10 @@ public class IOHelper {
 
     /**
      * Checks whether the given mime-type can be read.
+     *
      * @param mimeType the mime type
      * @return <code>true</code> if the mime type can be read,
-     * <code>false</code> otherwise
+     *         <code>false</code> otherwise
      */
     public boolean canReadMimeType(String mimeType) {
         if (mimeType == null) {
@@ -349,9 +399,10 @@ public class IOHelper {
 
     /**
      * Checks whether the given mime-type can be written.
+     *
      * @param mimeType the mime type
      * @return <code>true</code> if the mime type can be written,
-     * <code>false</code> otherwise
+     *         <code>false</code> otherwise
      */
     public boolean canWriteMimeType(String mimeType) {
         if (mimeType == null) {

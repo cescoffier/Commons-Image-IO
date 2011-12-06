@@ -1,5 +1,7 @@
 package de.akquinet.commons.image.io;
 
+import org.apache.sanselan.ImageFormat;
+
 /**
  * List of supported formats.
  */
@@ -47,6 +49,27 @@ public enum Format {
             return GIF;
         } else {
             return UNKNOWN;
+        }
+    }
+
+    /**
+     * Gets the Sanselan ImageFormat object for the given Format object
+     * @param format the format
+     * @return the ImageFormat object
+     */
+    public static ImageFormat getSanselanImageFormat(Format format) {
+        switch (format) {
+            case BMP:
+                return ImageFormat.IMAGE_FORMAT_BMP;
+            case GIF:
+                return  ImageFormat.IMAGE_FORMAT_GIF;
+            case JPEG:
+                return ImageFormat.IMAGE_FORMAT_JPEG;
+            case PNG:
+                return ImageFormat.IMAGE_FORMAT_PNG;
+            case UNKNOWN:
+            default:
+                return ImageFormat.IMAGE_FORMAT_UNKNOWN;
         }
     }
 
