@@ -1,5 +1,8 @@
 package de.akquinet.commons.image.io;
 
+import org.apache.sanselan.ImageReadException;
+import org.apache.sanselan.Sanselan;
+
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -32,8 +35,11 @@ public class IOHelper {
         if (f == null) {
             throw new IOException("The input file is null");
         }
-
-        return ImageIO.read(f);
+        try {
+            return Sanselan.getBufferedImage(f);
+        } catch (ImageReadException e) {
+            throw new IOException("Cannot read buffered image from file", e);
+        }
     }
 
     /**
@@ -65,9 +71,16 @@ public class IOHelper {
                     "- the array is null");
         }
         InputStream is = new ByteArrayInputStream(bytes);
-        BufferedImage img = ImageIO.read(is);
-        closeQuietly(is);
-        return img;
+
+        try {
+            BufferedImage img = Sanselan.getBufferedImage(bytes);
+            return img;
+        } catch (ImageReadException e) {
+            throw new IOException("Cannot read the buffered image", e);
+        } finally {
+            closeQuietly(is);
+        }
+
     }
 
     /**
