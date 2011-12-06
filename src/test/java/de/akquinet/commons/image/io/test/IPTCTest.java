@@ -1,6 +1,11 @@
 package de.akquinet.commons.image.io.test;
 
 
+import com.adobe.xmp.XMPConst;
+import com.adobe.xmp.XMPException;
+import com.adobe.xmp.XMPMeta;
+import com.adobe.xmp.XMPMetaFactory;
+import com.adobe.xmp.properties.XMPProperty;
 import de.akquinet.commons.image.io.Format;
 import de.akquinet.commons.image.io.IPTCMetadata;
 import de.akquinet.commons.image.io.Image;
@@ -12,6 +17,7 @@ import org.apache.sanselan.formats.jpeg.JpegImageMetadata;
 import org.apache.sanselan.formats.jpeg.JpegImageParser;
 import org.apache.sanselan.formats.jpeg.JpegPhotoshopMetadata;
 import org.apache.sanselan.formats.jpeg.iptc.IPTCRecord;
+import org.apache.sanselan.formats.png.PngImageParser;
 import org.junit.Test;
 
 import java.io.File;
@@ -231,6 +237,25 @@ public class IPTCTest {
         assertTrue(origin.getMetadata().getKeywords().contains("Flore"));
         assertTrue(origin.getMetadata().getKeywords().contains("fauteuil"));
         assertTrue(origin.getMetadata().getKeywords().contains("a_test"));
+    }
+
+    @Test
+    public void testXMPExtractionOnPng() throws IOException, ImageReadException, XMPException {
+        File file = new File("/Users/clement/Pictures/pipe.png");
+
+        Map params = new HashMap();
+        String xmpXml = new PngImageParser().getXmpXml(new ByteSourceFile(file), params);
+        System.out.println(new PngImageParser().getMetadata(new ByteSourceFile(file), params));
+        System.out.println(xmpXml);
+
+        XMPMeta meta = XMPMetaFactory.parseFromString(xmpXml);
+        System.out.println("Subject: " + meta.getProperty("http://purl.org/dc/elements/1.1/", "subject").getValue());
+        //XMPProperty p = meta.getArrayItem(XMPConst.NS_DC, "subject", 0);
+        System.out.println(meta.countArrayItems(XMPConst.NS_DC, "subject"));
+        System.out.println(meta.getArrayItem(XMPConst.NS_DC, "subject", 1).getValue());
+
+        System.out.println(XMPMetaFactory.serializeToString(meta, null));
+
     }
 
 }

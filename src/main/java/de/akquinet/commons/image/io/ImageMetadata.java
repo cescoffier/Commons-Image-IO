@@ -15,10 +15,12 @@ import org.apache.sanselan.Sanselan;
 import org.apache.sanselan.common.IImageMetadata;
 import org.apache.sanselan.common.RationalNumber;
 import org.apache.sanselan.common.ImageMetadata.Item;
+import org.apache.sanselan.common.byteSources.ByteSourceFile;
 import org.apache.sanselan.formats.jpeg.JpegImageMetadata;
 import org.apache.sanselan.formats.jpeg.JpegPhotoshopMetadata;
 import org.apache.sanselan.formats.jpeg.iptc.IPTCConstants;
 import org.apache.sanselan.formats.jpeg.iptc.IPTCRecord;
+import org.apache.sanselan.formats.png.PngImageParser;
 import org.apache.sanselan.formats.tiff.TiffImageMetadata;
 import org.apache.sanselan.formats.tiff.TiffImageMetadata.GPSInfo;
 
@@ -135,6 +137,18 @@ public class ImageMetadata {
         } else {
             m_location = null;
             m_iptc = new IPTCMetadata();
+        }
+
+        // Test PNG metadata
+        if (m_format == Format.PNG) {
+            // Assume we have a file
+            PngImageParser parser = new PngImageParser();
+            try {
+                String xml = parser.getXmpXml(new ByteSourceFile(image.getFile()), null);
+                System.out.println(xml);
+            } catch (ImageReadException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
         }
     }
 
