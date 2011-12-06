@@ -46,6 +46,10 @@ public class IOHelper {
         } catch (CMMException e) {
             // CMMException is a runtime exception
             // Ignore, will fall back to Sanselan
+        } catch (IllegalArgumentException e) {
+            // IllegalArgumentException is thrown when there is an issue with the raster:
+            // Numbers of source Raster bands and source color space components do not match
+            // Ignore, will fall back to Sanselan
         }
 
         // As a fall back use Sanselan

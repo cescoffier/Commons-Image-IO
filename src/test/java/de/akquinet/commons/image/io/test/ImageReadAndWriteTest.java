@@ -209,6 +209,15 @@ public class ImageReadAndWriteTest {
         Assert.assertEquals(Format.JPEG, img.getFormat());
     }
 
+    @Test
+    public void testFileThrowingRasterException() throws  IOException {
+        File file = new File("src/test/resources/jpg/Break_Image_IO_RasterException.jpg");
+        Image img = new Image(file);
+        Assert.assertNotNull(img.getMetadata());
+        Assert.assertNotNull(img.getMetadata().getExifMetadata());
+        Assert.assertEquals(Format.JPEG, img.getFormat());
+    }
+
     private byte[] getByteArrayForFile(File file) throws IOException {
         return FileUtils.readFileToByteArray(file);
     }
