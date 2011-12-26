@@ -73,4 +73,13 @@ public enum Format {
         }
     }
 
+    /**
+     * Checks whether the format support extended metadata (i.e. IPTC or XMP).
+     * @param format the format to check
+     * @return <code>true</code> if the format supports extended metadata, <code>false</code> otherwise.
+     */
+    public static boolean supportExtendedMetadata(Format format) {
+         return format == JPEG;
+    }
+
 }

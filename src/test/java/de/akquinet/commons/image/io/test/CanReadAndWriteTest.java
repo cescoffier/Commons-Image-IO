@@ -117,5 +117,11 @@ public class CanReadAndWriteTest {
     public void testFormatExtraction() throws FileNotFoundException, IOException {
         Assert.assertEquals(Format.GIF, m_helper.getFormat(new FileInputStream(ImageReadAndWriteTest.GIF)));
     }
+    
+    @Test
+    public void testSupportExtendedMetadata() {
+        Assert.assertTrue(Format.supportExtendedMetadata(Format.JPEG));
+        Assert.assertFalse(Format.supportExtendedMetadata(Format.BMP));
+    }
 
 }
