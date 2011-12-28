@@ -17,11 +17,15 @@ import org.apache.sanselan.formats.jpeg.JpegImageMetadata;
 import org.apache.sanselan.formats.jpeg.JpegImageParser;
 import org.apache.sanselan.formats.jpeg.JpegPhotoshopMetadata;
 import org.apache.sanselan.formats.jpeg.iptc.IPTCRecord;
+import org.apache.sanselan.formats.png.PngConstants;
 import org.apache.sanselan.formats.png.PngImageParser;
+import org.apache.sanselan.formats.png.PngWriter;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -241,11 +245,10 @@ public class IPTCTest {
 
     @Test
     public void testXMPExtractionOnPng() throws IOException, ImageReadException, XMPException {
-        File file = new File("/Users/clement/Pictures/pipe.png");
+        File file = new File("src/test/resources/png/pipe.png");
 
         Map params = new HashMap();
         String xmpXml = new PngImageParser().getXmpXml(new ByteSourceFile(file), params);
-        System.out.println(new PngImageParser().getMetadata(new ByteSourceFile(file), params));
         System.out.println(xmpXml);
 
         XMPMeta meta = XMPMetaFactory.parseFromString(xmpXml);
@@ -254,8 +257,29 @@ public class IPTCTest {
         System.out.println(meta.countArrayItems(XMPConst.NS_DC, "subject"));
         System.out.println(meta.getArrayItem(XMPConst.NS_DC, "subject", 1).getValue());
 
-        System.out.println(XMPMetaFactory.serializeToString(meta, null));
+        //System.out.println(XMPMetaFactory.serializeToString(meta, null));
+
 
     }
+    
+    @Test
+    public void testSanselanXMPWriting() throws Exception {
+        File file = new File("src/test/resources/png/pipe.png");
+        File out = File.createTempFile("pipe_out", ".png");
+
+        String xmpXml = new PngImageParser().getXmpXml(new ByteSourceFile(file), null);
+        PngWriter writer = new PngWriter(true);
+
+        Map<String, String> params = new HashMap<String, String>();
+        params.put(PngConstants.PARAM_KEY_XMP_XML, xmpXml);
+        writer.writeImage(new PngImageParser().getBufferedImage(new ByteSourceFile(file), new HashMap()), new FileOutputStream(out), params);
+
+        String xmp = new PngImageParser().getXmpXml(new ByteSourceFile(out), params);
+        Assert.assertEquals(xmp, xmpXml);
+
+
+    }
+             
+
 
 }
