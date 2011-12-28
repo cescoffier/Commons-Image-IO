@@ -610,4 +610,12 @@ public class ImageMetadata {
         m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_WRITER_EDITOR, value);
     }
 
+    /**
+     * Gets the XMP XML snippet.
+     * @return the XMP XML snippet or <code>null</code> if the image does not contain XMP metadata
+     */
+    public String getXmp() {
+        return m_xmp;
+    }
+
 }
