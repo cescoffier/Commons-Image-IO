@@ -13,13 +13,14 @@ import org.apache.sanselan.ImageInfo;
 import org.apache.sanselan.ImageReadException;
 import org.apache.sanselan.Sanselan;
 import org.apache.sanselan.common.IImageMetadata;
-import org.apache.sanselan.common.RationalNumber;
 import org.apache.sanselan.common.ImageMetadata.Item;
+import org.apache.sanselan.common.byteSources.ByteSource;
+import org.apache.sanselan.common.byteSources.ByteSourceArray;
 import org.apache.sanselan.common.byteSources.ByteSourceFile;
 import org.apache.sanselan.formats.jpeg.JpegImageMetadata;
-import org.apache.sanselan.formats.jpeg.JpegPhotoshopMetadata;
+import org.apache.sanselan.formats.jpeg.JpegImageParser;
 import org.apache.sanselan.formats.jpeg.iptc.IPTCConstants;
-import org.apache.sanselan.formats.jpeg.iptc.IPTCRecord;
+import org.apache.sanselan.formats.jpeg.xmp.JpegXmpParser;
 import org.apache.sanselan.formats.png.PngImageParser;
 import org.apache.sanselan.formats.tiff.TiffImageMetadata;
 import org.apache.sanselan.formats.tiff.TiffImageMetadata.GPSInfo;
@@ -68,6 +69,8 @@ public class ImageMetadata {
 
     private final Location m_location;
 
+    private final String m_xmp;
+
     /**
      * Creates a ImageMetadata for the given Image.
      * This constructor extracts image info and if the format is eligible
@@ -78,16 +81,14 @@ public class ImageMetadata {
      */
     public ImageMetadata(Image image) throws IOException {
         ImageInfo info = null;
-        IImageMetadata metadata = null;
-
+        ByteSource source = null;
         try {
             if (image.getFile() == null || !image.getFile().exists()) {
-                byte[] bytes = image.getRawBytes();
-                info = Sanselan.getImageInfo(bytes);
-                metadata = Sanselan.getMetadata(bytes);
+                source = new ByteSourceArray(image.getRawBytes());
+                info = Sanselan.getImageInfo(((ByteSourceArray) source).getAll());
             } else {
+                source = new ByteSourceFile(image.getFile());
                 info = Sanselan.getImageInfo(image.getFile());
-                metadata = Sanselan.getMetadata(image.getFile());
             }
         } catch (ImageReadException e) {
             throw new IOException(e);
@@ -114,7 +115,7 @@ public class ImageMetadata {
         }
 
         if (m_dpiHeight == -1) {
-             // No unit, assume 72.
+            // No unit, assume 72.
             m_dpiHeight = 72;
         }
 
@@ -125,34 +126,64 @@ public class ImageMetadata {
 
         m_numberOfImages = info.getNumberOfImages();
 
-        if (metadata != null) {
-            @SuppressWarnings("unchecked")
-            List<Item> items = metadata.getItems();
-            for (Item i : items) {
-                m_metadata.put(i.getKeyword(), i.getText());
-            }
-            m_iptc = extractIPTC(metadata);
-            m_location = extractLocation(metadata);
+        if (m_format == Format.JPEG) {
+            // JPEG file can contain Exif, IPTC and XMP metadata
+            JpegImageParser parser = new JpegImageParser();
 
-        } else {
+            String xmp = null;
+            IImageMetadata metadata = null;
+            try {
+                xmp = parser.getXmpXml(source, null);
+                metadata = parser.getMetadata(source);
+            } catch (ImageReadException e) {
+                throw new IOException(e);
+            }
+
+            if (metadata != null) {
+                // Extract Exif.
+                List<Item> items = metadata.getItems();
+                for (Item i : items) {
+                    m_metadata.put(i.getKeyword(), i.getText());
+                }
+                // Geolocalisation is processed differently
+                m_location = extractLocation(metadata);
+                // Extract IPTC
+                m_iptc = extractIPTCForJPEG(metadata);
+            } else {
+                m_location = null;
+                m_iptc = new IPTCMetadata();
+            }
+
+            // TODO Process XMP
+            m_xmp = xmp;
+        } else if (m_format == Format.PNG) {
+            // PNG can only contains XMP
+            PngImageParser parser = new PngImageParser();
+            String xmp = null;
+            IImageMetadata metadata = null;
+            try {
+                xmp = parser.getXmpXml(source, null);
+                metadata = parser.getMetadata(source);
+            } catch (ImageReadException e) {
+                throw new IOException(e);
+            }
+
+            System.out.println("Metadata from png : " + metadata);
             m_location = null;
             m_iptc = new IPTCMetadata();
+            // TODO Process XMP
+            m_xmp = xmp;
+        } else {
+            // Unsupported format
+            m_xmp = null;
+            m_iptc = new IPTCMetadata();
+            m_location = null;
         }
 
-        // Test PNG metadata
-        if (m_format == Format.PNG) {
-            // Assume we have a file
-            PngImageParser parser = new PngImageParser();
-            try {
-                String xml = parser.getXmpXml(new ByteSourceFile(image.getFile()), null);
-                System.out.println(xml);
-            } catch (ImageReadException e) {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
-        }
+
     }
 
-    private IPTCMetadata extractIPTC(IImageMetadata metadata) {
+    private IPTCMetadata extractIPTCForJPEG(IImageMetadata metadata) {
         if (metadata instanceof JpegImageMetadata) {
             return new IPTCMetadata((JpegImageMetadata) metadata);
         } else {
@@ -443,7 +474,7 @@ public class ImageMetadata {
      * Gets the picture orientation.
      *
      * @return the orientation determined from the IPTC metadata if present
-     * or from the image dimension.
+     *         or from the image dimension.
      */
     public Orientation getOrientation() {
         String iptc = m_iptc.getValue(IPTCConstants.IPTC_TYPE_IMAGE_ORIENTATION);
@@ -482,8 +513,9 @@ public class ImageMetadata {
 
     /**
      * Gets the IPTC ObjectName if exists
+     *
      * @return the ObjectName, or <code>null</code> if
-     * the metadata does not exist
+     *         the metadata does not exist
      */
     public String getTitle() {
         return m_iptc.getValue(IPTCConstants.IPTC_TYPE_OBJECT_NAME);
@@ -495,6 +527,7 @@ public class ImageMetadata {
 
     /**
      * Gets the IPTC keywords.
+     *
      * @return the list of keywords, empty if there are no keywords
      */
     public List<String> getKeywords() {
