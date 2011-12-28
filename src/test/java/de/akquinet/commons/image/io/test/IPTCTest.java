@@ -276,9 +276,9 @@ public class IPTCTest {
 
         String xmp = new PngImageParser().getXmpXml(new ByteSourceFile(out), params);
         Assert.assertEquals(xmp, xmpXml);
-
-
     }
+
+
              
 
 
