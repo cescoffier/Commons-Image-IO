@@ -88,7 +88,7 @@ public class JPEGWriter extends JpegRewriter {
                 List newPieces = new ArrayList();
                 m_pieces = removeXmpSegments(m_pieces);
                 int segmentSize = Math.min(xmp.getBytes().length, MAX_SEGMENT_SIZE);
-                byte segmentData[] = writeXmpSegment(m_image.getMetadata().getXmp().getBytes("utf-8"), 0, segmentSize);
+                byte segmentData[] = writeXmpSegment(m_image.getMetadata().getXmp().getBytes(), 0, segmentSize);
                 newPieces.add(new JFIFPieceSegment(JPEG_APP1_Marker, segmentData));
                 m_pieces = insertAfterLastAppSegments(m_pieces, newPieces);
             }
