@@ -11,9 +11,11 @@ import org.apache.sanselan.formats.jpeg.iptc.IPTCParser;
 import org.apache.sanselan.formats.jpeg.iptc.PhotoshopApp13Data;
 import org.apache.sanselan.formats.jpeg.xmp.JpegRewriter;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -63,7 +65,7 @@ public class JPEGWriter extends JpegRewriter {
                 JPEG_APP13_Marker, segmentBytes);
 
         m_pieces = insertAfterLastAppSegments(newPieces, Arrays
-                .asList(new JFIFPieceSegment[]{newSegment}));
+                .asList(newSegment));
 
     }
 
@@ -75,8 +77,20 @@ public class JPEGWriter extends JpegRewriter {
      */
     public void write(OutputStream fos) throws IOException {
         try {
-            if (m_image.getMetadata().getIPTCMetadata() != null  && m_image.getMetadata().getIPTCMetadata().wasUpdated()) {
-                replaceIPTCMetadata(m_image.getMetadata().getIPTCMetadata().getPhotoshopApp13Data());
+            PhotoshopApp13Data data = m_image.getMetadata().getExtendedMetadata().getPhotoshopApp13Data();
+            if (data != null) {
+                replaceIPTCMetadata(data);
+            }
+
+            // Write the XMP segment too, if any
+            String xmp = m_image.getMetadata().getXmp();
+            if (xmp != null) {
+                List newPieces = new ArrayList();
+                m_pieces = removeXmpSegments(m_pieces);
+                int segmentSize = Math.min(xmp.getBytes().length, MAX_SEGMENT_SIZE);
+                byte segmentData[] = writeXmpSegment(m_image.getMetadata().getXmp().getBytes("utf-8"), 0, segmentSize);
+                newPieces.add(new JFIFPieceSegment(JPEG_APP1_Marker, segmentData));
+                m_pieces = insertAfterLastAppSegments(m_pieces, newPieces);
             }
 
             writeSegments(fos, (List<JFIFPiece>) m_pieces);
@@ -104,5 +118,52 @@ public class JPEGWriter extends JpegRewriter {
         } catch (ImageReadException e) {
             throw new IOException(e.getMessage(), e);
         }
+    }
+
+    /**
+     * Reads a Jpeg image, replaces the XMP XML and writes the result to a
+     * stream.
+     *
+     * @param byteSource
+     *            ByteSource containing Jpeg image data.
+     * @param os
+     *            OutputStream to write the image to.
+     * @param xmpXml
+     *            String containing XMP XML.
+     */
+    public void updateXmpXml(ByteSource byteSource, OutputStream os,
+                             String xmpXml) throws ImageReadException, IOException,
+            ImageWriteException
+    {
+        JFIFPieces jfifPieces = analyzeJFIF(byteSource);
+        List pieces = jfifPieces.pieces;
+        pieces = removeXmpSegments(pieces);
+
+        List newPieces = new ArrayList();
+        byte xmpXmlBytes[] = xmpXml.getBytes("utf-8");
+        int index = 0;
+        while (index < xmpXmlBytes.length)
+        {
+            int segmentSize = Math.min(xmpXmlBytes.length, MAX_SEGMENT_SIZE);
+            byte segmentData[] = writeXmpSegment(xmpXmlBytes, index,
+                    segmentSize);
+            newPieces.add(new JFIFPieceSegment(JPEG_APP1_Marker, segmentData));
+            index += segmentSize;
+        }
+
+        pieces = insertAfterLastAppSegments(pieces, newPieces);
+
+        writeSegments(os, pieces);
+    }
+
+    private byte[] writeXmpSegment(byte xmpXmlData[], int start, int length)
+            throws IOException
+    {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+        os.write(XMP_IDENTIFIER);
+        os.write(xmpXmlData, start, length);
+
+        return os.toByteArray();
     }
 }

@@ -2,8 +2,13 @@ package de.akquinet.commons.image.io;
 
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.sanselan.ImageWriteException;
+import org.apache.sanselan.formats.png.PngConstants;
+import org.apache.sanselan.formats.png.PngWriter;
 
 /**
  * The {@link Image} class represents pictures and provides
@@ -223,6 +228,19 @@ public class Image {
                 writer.load(this);
                 writer.write(fos);
             } finally {
+                fos.close();
+            }
+        } else if (format == Format.PNG  && getMetadata().getXmp() != null) {
+            PngWriter writer = new PngWriter(false);
+            OutputStream fos = new FileOutputStream(out);
+            try {
+                Map params = new HashMap<String, String>();
+                params.put(PngConstants.PARAM_KEY_XMP_XML, getMetadata().getXmp());
+                writer.writeImage(getBufferedImage(), fos, params);
+            } catch (ImageWriteException e) {
+                throw new IOException("Can't write the PNG file", e);
+            }
+            finally {
                 fos.close();
             }
         } else {

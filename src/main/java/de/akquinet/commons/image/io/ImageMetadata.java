@@ -4,10 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.sanselan.ImageInfo;
 import org.apache.sanselan.ImageReadException;
@@ -20,7 +17,6 @@ import org.apache.sanselan.common.byteSources.ByteSourceFile;
 import org.apache.sanselan.formats.jpeg.JpegImageMetadata;
 import org.apache.sanselan.formats.jpeg.JpegImageParser;
 import org.apache.sanselan.formats.jpeg.iptc.IPTCConstants;
-import org.apache.sanselan.formats.jpeg.xmp.JpegXmpParser;
 import org.apache.sanselan.formats.png.PngImageParser;
 import org.apache.sanselan.formats.tiff.TiffImageMetadata;
 import org.apache.sanselan.formats.tiff.TiffImageMetadata.GPSInfo;
@@ -65,11 +61,9 @@ public class ImageMetadata {
 
     private final Map<String, String> m_metadata = new HashMap<String, String>();
 
-    private final IPTCMetadata m_iptc;
+    private final ExtendedImageMetadata m_extended;
 
     private final Location m_location;
-
-    private final String m_xmp;
 
     /**
      * Creates a ImageMetadata for the given Image.
@@ -147,15 +141,12 @@ public class ImageMetadata {
                 }
                 // Geolocalisation is processed differently
                 m_location = extractLocation(metadata);
-                // Extract IPTC
-                m_iptc = extractIPTCForJPEG(metadata);
+                // Manage extended metadata
+                m_extended = new ExtendedImageMetadata((JpegImageMetadata) metadata, xmp);
             } else {
                 m_location = null;
-                m_iptc = new IPTCMetadata();
+                m_extended = new ExtendedImageMetadata(null, xmp);
             }
-
-            // TODO Process XMP
-            m_xmp = xmp;
         } else if (m_format == Format.PNG) {
             // PNG can only contains XMP
             PngImageParser parser = new PngImageParser();
@@ -168,27 +159,15 @@ public class ImageMetadata {
                 throw new IOException(e);
             }
 
-            System.out.println("Metadata from png : " + metadata);
             m_location = null;
-            m_iptc = new IPTCMetadata();
-            // TODO Process XMP
-            m_xmp = xmp;
+            m_extended = new ExtendedImageMetadata(null, xmp);
         } else {
             // Unsupported format
-            m_xmp = null;
-            m_iptc = new IPTCMetadata();
+            m_extended = new ExtendedImageMetadata(null, null);
             m_location = null;
         }
 
 
-    }
-
-    private IPTCMetadata extractIPTCForJPEG(IImageMetadata metadata) {
-        if (metadata instanceof JpegImageMetadata) {
-            return new IPTCMetadata((JpegImageMetadata) metadata);
-        } else {
-            return new IPTCMetadata();
-        }
     }
 
     private Location extractLocation(IImageMetadata metadata) {
@@ -378,16 +357,12 @@ public class ImageMetadata {
     }
 
     /**
-     * Gets IPTC metadata if any.
+     * Gets IPTC metadata if any. The lookup is done on the original image.
      *
-     * @return the image IPTC metadata. <code>null</code> is
-     *         returned if no IPTC metadata were extracted
+     * @return the image IPTC metadata, they may be empty
      */
     public IPTCMetadata getIPTCMetadata() {
-        if (m_iptc.size() == 0) {
-            return null;
-        }
-        return m_iptc;
+        return m_extended.getIPTC();
     }
 
     /**
@@ -446,11 +421,11 @@ public class ImageMetadata {
     }
 
     public String getIPTCCreationDate() {
-        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_DATE_CREATED);
+        return m_extended.getCreationDate();
     }
 
     public void setIPTCCreationDate(String value) {
-        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_DATE_CREATED, value);
+        m_extended.setCreationDate(value);
     }
 
     /**
@@ -477,7 +452,7 @@ public class ImageMetadata {
      *         or from the image dimension.
      */
     public Orientation getOrientation() {
-        String iptc = m_iptc.getValue(IPTCConstants.IPTC_TYPE_IMAGE_ORIENTATION);
+        String iptc = m_extended.getIPTC().getValue(IPTCConstants.IPTC_TYPE_IMAGE_ORIENTATION);
         if (iptc == null) {
             return Orientation.getOrientationFromDimension(getWidth(), getHeight());
         } else {
@@ -518,11 +493,11 @@ public class ImageMetadata {
      *         the metadata does not exist
      */
     public String getTitle() {
-        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_OBJECT_NAME);
+        return m_extended.getTitle();
     }
 
     public void setTitle(String value) {
-        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_OBJECT_NAME, value);
+        m_extended.setTitle(value);
     }
 
     /**
@@ -531,83 +506,83 @@ public class ImageMetadata {
      * @return the list of keywords, empty if there are no keywords
      */
     public List<String> getKeywords() {
-        return m_iptc.getValues(IPTCConstants.IPTC_TYPE_KEYWORDS.type);
+        return m_extended.getKeywords();
     }
 
     public void setKeywords(List<String> values) {
-        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_KEYWORDS, values);
+        m_extended.setKeywords(values);
     }
 
     public String getByLine() {
-        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_BYLINE);
+        return m_extended.getAuthor();
     }
 
     public void setByLine(String value) {
-        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_BYLINE, value);
+        m_extended.setAuthor(value);
     }
 
     public String getByLineTitle() {
-        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_BYLINE_TITLE);
+        return m_extended.getExtendedAuthor();
     }
 
     public void setByLineTitle(String value) {
-        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_BYLINE_TITLE, value);
+        m_extended.setExtendedAuthor(value);
     }
 
     public String getHeadLine() {
-        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_HEADLINE);
+        return m_extended.getSynopsis();
     }
 
     public void setHeadline(String value) {
-        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_HEADLINE, value);
+        m_extended.setSynopsis(value);
     }
 
     public String getCity() {
-        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_CITY);
+        return m_extended.getCity();
     }
 
     public void setCity(String value) {
-        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_CITY, value);
+        m_extended.setCity(value);
     }
 
     public String getState() {
-        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_PROVINCE_STATE);
+        return m_extended.getState();
     }
 
     public void setState(String value) {
-        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_PROVINCE_STATE, value);
+        m_extended.setState(value);
     }
 
     public String getCountry() {
-        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_COUNTRY_PRIMARY_LOCATION_NAME);
+        return m_extended.getCountry();
     }
 
     public void setCountry(String value) {
-        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_COUNTRY_PRIMARY_LOCATION_NAME, value);
+        m_extended.setCountry(value);
     }
 
     public String getCopyright() {
-        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_COPYRIGHT_NOTICE);
+        return m_extended.getCopyright();
     }
 
     public void setCopyright(String value) {
-        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_COPYRIGHT_NOTICE, value);
+        m_extended.setCopyright(value);
     }
 
     public String getCaption() {
-        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_CAPTION_ABSTRACT);
+        return m_extended.getDescription();
     }
 
     public void setCaption(String value) {
-        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_CAPTION_ABSTRACT, value);
+        m_extended.setDescription(value);
     }
 
     public String getEditor() {
-        return m_iptc.getValue(IPTCConstants.IPTC_TYPE_WRITER_EDITOR);
+        return m_extended.getEditor();
     }
 
     public void setEditor(String value) {
-        m_iptc.updateMetadata(IPTCConstants.IPTC_TYPE_WRITER_EDITOR, value);
+        m_extended.setEditor(value);
     }
 
     /**
@@ -615,7 +590,15 @@ public class ImageMetadata {
      * @return the XMP XML snippet or <code>null</code> if the image does not contain XMP metadata
      */
     public String getXmp() {
-        return m_xmp;
+        try {
+            return m_extended.getXMPMetadata();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
+    public ExtendedImageMetadata getExtendedMetadata() {
+        return m_extended;
+    }
 }

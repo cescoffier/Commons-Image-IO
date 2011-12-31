@@ -11,128 +11,131 @@ import org.apache.sanselan.formats.jpeg.iptc.PhotoshopApp13Data;
 import java.util.ArrayList;
 import java.util.List;
 
-public class IPTCMetadata extends ArrayList<IPTCMetadata.Record> {
+public class IPTCMetadata {
 
-    private boolean m_updated = false;
-    private final PhotoshopApp13Data m_photoshopApp13Data;
+    private PhotoshopApp13Data m_photoshopApp13Data;
 
     public IPTCMetadata() {
-        super();
         m_photoshopApp13Data = null;
     }
 
-    public IPTCMetadata(JpegImageMetadata metadata) {
+    public IPTCMetadata(ExtendedImageMetadata metadata, JpegImageMetadata iptc) {
         super();
-        JpegPhotoshopMetadata psMetadata = ((JpegImageMetadata) metadata).getPhotoshop();
+        if (iptc == null) {
+            return;
+        }
+
+        JpegPhotoshopMetadata psMetadata = ((JpegImageMetadata) iptc).getPhotoshop();
         if (psMetadata != null) {
             m_photoshopApp13Data = psMetadata.photoshopApp13Data;
-            List oldRecords = m_photoshopApp13Data.getRecords();
-            if (oldRecords != null) {
-                for (IPTCRecord record : (List<IPTCRecord>) oldRecords) {
-                    addMetadata(record.getIptcTypeName(), record.iptcType.type, record.getValue());
-                }
-            }
+
+            metadata.setTitle(getValue(IPTCConstants.IPTC_TYPE_OBJECT_NAME));
+            metadata.setAuthor(getValue(IPTCConstants.IPTC_TYPE_BYLINE));
+            metadata.setCity(getValue(IPTCConstants.IPTC_TYPE_CITY));
+            metadata.setCopyright(getValue(IPTCConstants.IPTC_TYPE_COPYRIGHT_NOTICE));
+            metadata.setCountry(getValue(IPTCConstants.IPTC_TYPE_COUNTRY_PRIMARY_LOCATION_NAME));
+            metadata.setDescription(getValue(IPTCConstants.IPTC_TYPE_CAPTION_ABSTRACT));
+            metadata.setEditor(getValue(IPTCConstants.IPTC_TYPE_WRITER_EDITOR));
+            metadata.setExtendedAuthor(getValue(IPTCConstants.IPTC_TYPE_BYLINE_TITLE));
+            metadata.setKeywords(getValues(IPTCConstants.IPTC_TYPE_KEYWORDS));
+            metadata.setState(getValue(IPTCConstants.IPTC_TYPE_PROVINCE_STATE));
+            metadata.setSynopsis(getValue(IPTCConstants.IPTC_TYPE_HEADLINE));
+            metadata.setUsage(getValue(IPTCConstants.IPTC_TYPE_CREDIT));
+            metadata.setCreationDate(getValue(IPTCConstants.IPTC_TYPE_DATE_CREATED));
+
         } else {
             m_photoshopApp13Data = null;
         }
     }
 
-    public PhotoshopApp13Data getPhotoshopApp13Data() {
+    public PhotoshopApp13Data getPhotoshopApp13Data(ExtendedImageMetadata metadata) {
         List<IPTCRecord> records = new ArrayList<IPTCRecord>();
-        for (Record record : this) {
-            for (String v : record.getValues()) {
-                records.add(new IPTCRecord(record.getIPTCType(), v));
-            }
-        }
+
+        // First check if we had IPTC metadata already
         if (m_photoshopApp13Data != null) {
-            return new PhotoshopApp13Data(records, m_photoshopApp13Data.getNonIptcBlocks());
-        } else {
-            return new PhotoshopApp13Data(records, new ArrayList(0));
+            records = m_photoshopApp13Data.getRecords();
         }
+
+        setRecord(records, IPTCConstants.IPTC_TYPE_OBJECT_NAME, metadata.getTitle());
+        setRecord(records, IPTCConstants.IPTC_TYPE_BYLINE, metadata.getAuthor());
+        setRecord(records, IPTCConstants.IPTC_TYPE_CITY, metadata.getCity());
+        setRecord(records, IPTCConstants.IPTC_TYPE_COPYRIGHT_NOTICE, metadata.getCopyright());
+        setRecord(records, IPTCConstants.IPTC_TYPE_COUNTRY_PRIMARY_LOCATION_NAME, metadata.getCountry());
+        setRecord(records, IPTCConstants.IPTC_TYPE_CAPTION_ABSTRACT, metadata.getDescription());
+        setRecord(records, IPTCConstants.IPTC_TYPE_WRITER_EDITOR, metadata.getEditor());
+        setRecord(records, IPTCConstants.IPTC_TYPE_BYLINE_TITLE, metadata.getExtendedAuthor());
+        setRecord(records, IPTCConstants.IPTC_TYPE_PROVINCE_STATE, metadata.getState());
+        setRecord(records, IPTCConstants.IPTC_TYPE_HEADLINE, metadata.getSynopsis());
+        setRecord(records, IPTCConstants.IPTC_TYPE_CREDIT, metadata.getUsage());
+        setRecord(records, IPTCConstants.IPTC_TYPE_DATE_CREATED, metadata.getCreationDate());
+        setRecords(records, IPTCConstants.IPTC_TYPE_KEYWORDS, metadata.getKeywords());
+
+        PhotoshopApp13Data data = null;
+        if (m_photoshopApp13Data != null) {
+            data = new PhotoshopApp13Data(records, m_photoshopApp13Data.getNonIptcBlocks());
+        } else {
+            data = new PhotoshopApp13Data(records, new ArrayList(0));
+        }
+        m_photoshopApp13Data = data;
+
+        return data;
 
     }
 
-    public class Record {
+    public PhotoshopApp13Data getOriginalIPTCMetadata() {
+        return m_photoshopApp13Data;
+    }
 
-        private final List<String> values;
-        private final String name;
-        private final int type;
-
-        public Record(String name, int type, List<String> values) {
-            this.type = type;
-            this.values = values;
-            this.name = name;
-        }
-
-        public Record(String name, int type, String value) {
-            this.type = type;
-            this.values = new ArrayList<String>(1);
-            values.add(value);
-            this.name = name;
-        }
-
-        public IPTCType getIPTCType() {
-            return new IPTCType(type, name);
-        }
-
-        public List<String> getValues() {
-            return new ArrayList<String>(values);
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public int getType() {
-            return type;
-        }
-
-        public int getNumberOfValues() {
-            return values.size();
-        }
-
-        public void addValue(String value) {
-            values.add(value);
-        }
-
-        public void setValue(String value) {
-            values.clear();
-            values.add(value);
-        }
-
-        public void setValues(List<String> values) {
-            this.values.clear();
-            this.values.addAll(values);
-        }
-
-        public String getValue() {
-            if (!values.isEmpty()) {
-                return values.get(0);
+    public void setRecord(List<IPTCRecord> records, IPTCType type, String value) {
+        IPTCRecord rec = getRecordByType(type.type);
+        if (value != null) {
+            // As we can't change the value of a record, we remove the record, and recreate a new one
+            if (rec != null) {
+                records.remove(rec);
             }
+            records.add(new IPTCRecord(type, value));
+        }
+    }
+
+    public void setRecords(List<IPTCRecord> records, IPTCType type, List<String> values) {
+        List<IPTCRecord> rec = getRecordsByType(type.type);
+        if (values != null) {
+            if (rec != null) {
+                records.removeAll(rec);
+            }
+            for (String s : values) {
+                records.add(new IPTCRecord(type, s));
+            }
+        }
+    }
+
+    public IPTCRecord getRecordByType(int type) {
+        if (m_photoshopApp13Data == null || m_photoshopApp13Data.getRecords() == null) {
             return null;
         }
-    }
-
-    public Record getRecordByName(String name) {
-        for (Record record : this) {
-            if (record.getName().equals(name)) {
+        for (IPTCRecord record : (List<IPTCRecord>) m_photoshopApp13Data.getRecords()) {
+            if (record.iptcType.type == type) {
                 return record;
             }
         }
         return null;
     }
 
-    public Record getRecordByType(int type) {
-        for (Record record : this) {
-            if (record.getType() == type) {
-                return record;
+    public List<IPTCRecord> getRecordsByType(int type) {
+        if (m_photoshopApp13Data == null || m_photoshopApp13Data.getRecords() == null) {
+            return null;
+        }
+        List<IPTCRecord> list = new ArrayList<IPTCRecord>();
+        for (IPTCRecord record : (List<IPTCRecord>) m_photoshopApp13Data.getRecords()) {
+            if (record.iptcType.type == type) {
+                list.add(record);
             }
         }
-        return null;
+        return list;
     }
 
     public String getValue(IPTCType type) {
-        Record record = getRecordByType(type.type);
+        IPTCRecord record = getRecordByType(type.type);
         if (record != null) {
             return record.getValue();
         } else {
@@ -140,50 +143,14 @@ public class IPTCMetadata extends ArrayList<IPTCMetadata.Record> {
         }
     }
 
-    public List<String> getValues(int type) {
-        Record record = getRecordByType(type);
-        if (record != null) {
-            return record.getValues();
-        } else {
-            return new ArrayList<String>(0);
+    public List<String> getValues(IPTCType type) {
+        List<IPTCRecord> records = getRecordsByType(type.type);
+        List<String> values = new ArrayList<String>();
+        if (records != null) {
+            for (IPTCRecord s : records) {
+                values.add(s.getValue());
+            }
         }
+        return values;
     }
-
-    public void addMetadata(String name, int type, String value) {
-        Record record = getRecordByType(type);
-        if (record == null) {
-            add(new Record(name, type, value));
-        } else {
-            record.addValue(value);
-        }
-    }
-
-    public void updateMetadata(IPTCType type, String value) {
-        Record record = getRecordByType(type.type);
-        if (record == null) {
-            add(new Record(type.name, type.type, value));
-        } else {
-            record.setValue(value);
-        }
-        updated(true);
-    }
-
-    public void updateMetadata(IPTCType type, List<String> values) {
-        Record record = getRecordByType(type.type);
-        if (record == null) {
-            add(new Record(type.name, type.type, values));
-        } else {
-            record.setValues(values);
-        }
-        updated(true);
-    }
-
-    public synchronized boolean wasUpdated() {
-        return m_updated;
-    }
-
-    public synchronized void updated(boolean updated) {
-        m_updated = updated;
-    }
-
 }
