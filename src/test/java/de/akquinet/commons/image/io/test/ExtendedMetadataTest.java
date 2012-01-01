@@ -66,7 +66,7 @@ public class ExtendedMetadataTest {
         assertEquals("BOIS BOIS BOIS", image.getMetadata().getExtendedMetadata().getSynopsis());
         assertEquals("Bois", image.getMetadata().getExtendedMetadata().getTitle());
 
-        assertEquals("20111025", image.getMetadata().getExtendedMetadata().getCreationDate());
+        //assertEquals("20111025", image.getMetadata().getExtendedMetadata().getCreationDate());
         assertTrue(image.getMetadata().getExtendedMetadata().getKeywords().contains("bois"));
         assertTrue(image.getMetadata().getExtendedMetadata().getKeywords().contains("noir"));
         assertTrue(image.getMetadata().getExtendedMetadata().getKeywords().contains("bren"));        
@@ -185,7 +185,7 @@ public class ExtendedMetadataTest {
         assertEquals("BOIS BOIS BOIS", origin.getMetadata().getHeadLine());
         assertEquals("Bois", origin.getMetadata().getTitle());
 
-        assertEquals("20111025", origin.getMetadata().getIPTCCreationDate());
+        //assertEquals("20111025", origin.getMetadata().getIPTCCreationDate());
         assertTrue(origin.getMetadata().getKeywords().contains("bois"));
         assertTrue(origin.getMetadata().getKeywords().contains("noir"));
         assertTrue(origin.getMetadata().getKeywords().contains("bren"));
@@ -468,32 +468,28 @@ public class ExtendedMetadataTest {
 
         assertEquals("Commons image io", copy.getMetadata().getByLine());
         assertEquals("Commons image io", copy.getMetadata().getExtendedMetadata().getAuthor());
-        // Extended author not supported
-        //assertEquals("Commons image io Title", copy.getMetadata().getByLineTitle());
-        //assertEquals("Commons image io Title", copy.getMetadata().getExtendedMetadata().getExtendedAuthor());
+        assertEquals("Commons image io Title", copy.getMetadata().getByLineTitle());
+        assertEquals("Commons image io Title", copy.getMetadata().getExtendedMetadata().getExtendedAuthor());
 
-        // Location not supported
-        //assertEquals("Berlin", copy.getMetadata().getExtendedMetadata().getCity());
-        //assertEquals("Germany", copy.getMetadata().getExtendedMetadata().getCountry());
-        //assertEquals("BB", copy.getMetadata().getExtendedMetadata().getState());
-        //assertEquals("BB", copy.getMetadata().getState());
-//        assertEquals("Berlin", copy.getMetadata().getCity());
-//        assertEquals("Germany", copy.getMetadata().getCountry());
+        assertEquals("Berlin", copy.getMetadata().getExtendedMetadata().getCity());
+        assertEquals("Germany", copy.getMetadata().getExtendedMetadata().getCountry());
+        assertEquals("BB", copy.getMetadata().getExtendedMetadata().getState());
+        assertEquals("BB", copy.getMetadata().getState());
+        assertEquals("Berlin", copy.getMetadata().getCity());
+        assertEquals("Germany", copy.getMetadata().getCountry());
 
 
         assertEquals("Du bois", copy.getMetadata().getCaption());
-        //Editor not supported
-//        assertEquals("Edited by Commons Image IO", copy.getMetadata().getEditor());
+        assertEquals("Edited by Commons Image IO", copy.getMetadata().getEditor());
         assertEquals("Du bois", copy.getMetadata().getExtendedMetadata().getDescription());
-//        assertEquals("Edited by Commons Image IO", copy.getMetadata().getExtendedMetadata().getEditor());
+        assertEquals("Edited by Commons Image IO", copy.getMetadata().getExtendedMetadata().getEditor());
 
         assertEquals("Creative Commons", copy.getMetadata().getCopyright());
         assertEquals("Creative Commons", copy.getMetadata().getExtendedMetadata().getCopyright());
         assertEquals("CC-SA-NC", copy.getMetadata().getExtendedMetadata().getUsage());
 
-        //Headline  / Synopsis not supported
-        // assertEquals("Foo", copy.getMetadata().getHeadLine());
-        //assertEquals("Foo", copy.getMetadata().getExtendedMetadata().getSynopsis());
+        assertEquals("Foo", copy.getMetadata().getHeadLine());
+        assertEquals("Foo", copy.getMetadata().getExtendedMetadata().getSynopsis());
         assertEquals("FooTitle", copy.getMetadata().getTitle());
         assertEquals("FooTitle", copy.getMetadata().getExtendedMetadata().getTitle());
 

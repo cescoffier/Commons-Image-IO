@@ -70,6 +70,41 @@ public class XMPMetadata {
                 metadata.setUsage(usage);
             }
 
+            String city = meta.getPropertyString(XMPConst.NS_PHOTOSHOP, "City");
+            if (city != null) {
+                metadata.setCity(city);
+            }
+
+            String country = meta.getPropertyString(XMPConst.NS_PHOTOSHOP, "Country");
+            if (country != null) {
+                metadata.setCountry(country);
+            }
+
+            String state = meta.getPropertyString(XMPConst.NS_PHOTOSHOP, "State");
+            if (state != null) {
+                metadata.setState(state);
+            }
+
+            String headline = meta.getPropertyString(XMPConst.NS_PHOTOSHOP, "Headline");
+            if (headline != null) {
+                metadata.setSynopsis(headline);
+            }
+
+            String date = meta.getPropertyString(XMPConst.NS_PHOTOSHOP, "DateCreated");
+            if (date != null) {
+                metadata.setCreationDate(date);
+            }
+
+            String extAuthor = meta.getPropertyString(XMPConst.NS_PHOTOSHOP, "AuthorsPosition");
+            if (extAuthor != null) {
+                metadata.setExtendedAuthor(extAuthor);
+            }
+
+            String editor = meta.getPropertyString(XMPConst.NS_PHOTOSHOP, "CaptionWriter");
+            if (editor != null) {
+                metadata.setEditor(editor);
+            }
+
             // TODO Support others metadata (City, Country ...)
             // TODO Support IPTC_Core
         } catch (XMPException e) {
@@ -138,6 +173,31 @@ public class XMPMetadata {
                     meta.appendArrayItem(XMPConst.NS_DC, "subject", k);
                 }
             }
+
+            // Photoshop namespace
+            // We use this namespace as specified in the IPTC Photo Metadata specification
+            if (metadata.getCity() != null) {
+                meta.setProperty(XMPConst.NS_PHOTOSHOP, "City", metadata.getCity());
+            }
+            if (metadata.getCountry() != null) {
+                meta.setProperty(XMPConst.NS_PHOTOSHOP, "Country", metadata.getCountry());
+            }
+            if (metadata.getState() != null) {
+                meta.setProperty(XMPConst.NS_PHOTOSHOP, "State", metadata.getState());
+            }
+            if (metadata.getSynopsis() != null) {
+                meta.setProperty(XMPConst.NS_PHOTOSHOP, "Headline", metadata.getSynopsis());
+            }
+            if (metadata.getCreationDate() != null) {
+                meta.setProperty(XMPConst.NS_PHOTOSHOP, "DateCreated", metadata.getCreationDate());
+            }
+            if (metadata.getExtendedAuthor() != null) {
+                meta.setProperty(XMPConst.NS_PHOTOSHOP, "AuthorsPosition", metadata.getExtendedAuthor());
+            }
+            if (metadata.getEditor() != null) {
+                meta.setProperty(XMPConst.NS_PHOTOSHOP, "CaptionWriter", metadata.getEditor());
+            }
+
 
             // TODO Support others metadata (City, Country ...)
             ByteArrayOutputStream out = new ByteArrayOutputStream();
