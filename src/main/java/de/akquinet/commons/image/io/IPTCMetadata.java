@@ -40,7 +40,7 @@ public class IPTCMetadata {
             metadata.setKeywords(getValues(IPTCConstants.IPTC_TYPE_KEYWORDS));
             metadata.setState(getValue(IPTCConstants.IPTC_TYPE_PROVINCE_STATE));
             metadata.setSynopsis(getValue(IPTCConstants.IPTC_TYPE_HEADLINE));
-            metadata.setUsage(getValue(IPTCConstants.IPTC_TYPE_CREDIT));
+            metadata.setUsage(getValue(IPTCConstants.IPTC_TYPE_SPECIAL_INSTRUCTIONS));
             metadata.setCreationDate(getValue(IPTCConstants.IPTC_TYPE_DATE_CREATED));
 
         } else {
@@ -66,7 +66,7 @@ public class IPTCMetadata {
         setRecord(records, IPTCConstants.IPTC_TYPE_BYLINE_TITLE, metadata.getExtendedAuthor());
         setRecord(records, IPTCConstants.IPTC_TYPE_PROVINCE_STATE, metadata.getState());
         setRecord(records, IPTCConstants.IPTC_TYPE_HEADLINE, metadata.getSynopsis());
-        setRecord(records, IPTCConstants.IPTC_TYPE_CREDIT, metadata.getUsage());
+        setRecord(records, IPTCConstants.IPTC_TYPE_SPECIAL_INSTRUCTIONS, metadata.getUsage());
         setRecord(records, IPTCConstants.IPTC_TYPE_DATE_CREATED, metadata.getCreationDate());
         setRecords(records, IPTCConstants.IPTC_TYPE_KEYWORDS, metadata.getKeywords());
 
