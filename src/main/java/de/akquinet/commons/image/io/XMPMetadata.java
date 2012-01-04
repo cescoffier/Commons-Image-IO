@@ -65,9 +65,23 @@ public class XMPMetadata {
                 metadata.setCopyright(copyright);
             }
 
+            String source = meta.getPropertyString(XMPConst.NS_DC, "source[1]");
+            if (source != null) {
+                metadata.setSource(source);
+            }
+
+            if (meta.doesPropertyExist(XMPConst.NS_XMP_RIGHTS, "Marked")) {
+                metadata.setMarked(meta.getPropertyBoolean(XMPConst.NS_XMP_RIGHTS, "Marked"));
+            }
+
             String usage = meta.getPropertyString(XMPConst.NS_XMP_RIGHTS, "UsageTerms[1]");
             if (usage != null) {
                 metadata.setUsage(usage);
+            }
+
+            String web = meta.getPropertyString(XMPConst.NS_XMP_RIGHTS, "WebStatement");
+            if (web != null) {
+                metadata.setWebStatement(web);
             }
 
             String city = meta.getPropertyString(XMPConst.NS_PHOTOSHOP, "City");
@@ -105,8 +119,6 @@ public class XMPMetadata {
                 metadata.setEditor(editor);
             }
 
-            // TODO Support others metadata (City, Country ...)
-            // TODO Support IPTC_Core
         } catch (XMPException e) {
             throw new IOException("Can't parse XMP metadata", e);
         }
@@ -150,11 +162,22 @@ public class XMPMetadata {
                 meta.setProperty(XMPConst.NS_DC, "description[1]", metadata.getDescription());
             }
 
+            if (metadata.getSource() != null) {
+                if (! meta.doesPropertyExist(XMPConst.NS_DC, "source")) {
+                    meta.setProperty(XMPConst.NS_DC, "source", null, options);
+                }
+                meta.setProperty(XMPConst.NS_DC, "source[1]", metadata.getSource());
+            }
+
             if (metadata.getCopyright() != null) {
                 if (! meta.doesPropertyExist(XMPConst.NS_DC, "rights")) {
                     meta.setProperty(XMPConst.NS_DC, "rights", null, options);
                 }
                 meta.setProperty(XMPConst.NS_DC, "rights[1]", metadata.getCopyright());
+            }
+
+            if (metadata.getWebStatement() != null) {
+                meta.setProperty(XMPConst.NS_XMP_RIGHTS, "WebStatement", metadata.getWebStatement());
             }
 
             if (metadata.getUsage() != null) {
@@ -163,6 +186,9 @@ public class XMPMetadata {
                 }
                 meta.setProperty(XMPConst.NS_XMP_RIGHTS, "UsageTerms[1]", metadata.getUsage());
             }
+
+            meta.setProperty(XMPConst.NS_XMP_RIGHTS, "Marked",metadata.isMarked());
+
 
             if (metadata.getKeywords() != null) {
                 // Recreate the array

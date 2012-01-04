@@ -41,6 +41,7 @@ public class IPTCMetadata {
             metadata.setState(getValue(IPTCConstants.IPTC_TYPE_PROVINCE_STATE));
             metadata.setSynopsis(getValue(IPTCConstants.IPTC_TYPE_HEADLINE));
             metadata.setUsage(getValue(IPTCConstants.IPTC_TYPE_SPECIAL_INSTRUCTIONS));
+            metadata.setSource(getValue(IPTCConstants.IPTC_TYPE_SOURCE));
             metadata.setCreationDate(getValue(IPTCConstants.IPTC_TYPE_DATE_CREATED));
 
         } else {
@@ -68,6 +69,7 @@ public class IPTCMetadata {
         setRecord(records, IPTCConstants.IPTC_TYPE_HEADLINE, metadata.getSynopsis());
         setRecord(records, IPTCConstants.IPTC_TYPE_SPECIAL_INSTRUCTIONS, metadata.getUsage());
         setRecord(records, IPTCConstants.IPTC_TYPE_DATE_CREATED, metadata.getCreationDate());
+        setRecord(records, IPTCConstants.IPTC_TYPE_SOURCE, metadata.getSource());
         setRecords(records, IPTCConstants.IPTC_TYPE_KEYWORDS, metadata.getKeywords());
 
         PhotoshopApp13Data data = null;

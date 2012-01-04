@@ -37,6 +37,12 @@ public class ExtendedImageMetadata {
     private String m_state;
 
     private String m_creationDate;
+
+    private String m_source;
+
+    private boolean m_marked;
+    
+    private String m_webStatement;
     
     private IPTCMetadata m_iptc;
     
@@ -87,6 +93,9 @@ public class ExtendedImageMetadata {
 
     public void setCopyright(String copyrights) {
         this.m_copyrights = copyrights;
+        if (m_copyrights != null  && m_copyrights.length() > 0) {
+            setMarked(true);
+        }
     }
 
     public String getUsage() {
@@ -163,6 +172,30 @@ public class ExtendedImageMetadata {
 
     public IPTCMetadata getIPTC() {
         return m_iptc;
+    }
+    
+    public void setMarked(boolean marked) {
+        this.m_marked = marked; 
+    }
+    
+    public boolean isMarked() {
+        return m_marked;
+    }
+    
+    public void setSource(String source) {
+        this.m_source = source;
+    }
+    
+    public String getSource() {
+        return m_source;
+    }
+
+    public void setWebStatement(String web) {
+        this.m_webStatement = web;
+    }
+
+    public String getWebStatement() {
+        return m_webStatement;
     }
 
     public PhotoshopApp13Data getPhotoshopApp13Data() {

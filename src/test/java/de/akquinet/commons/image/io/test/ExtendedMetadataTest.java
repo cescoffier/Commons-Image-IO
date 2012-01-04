@@ -94,6 +94,10 @@ public class ExtendedMetadataTest {
         assertTrue(image.getMetadata().getKeywords().contains("bois"));
         assertTrue(image.getMetadata().getKeywords().contains("noir"));
         assertTrue(image.getMetadata().getKeywords().contains("bren"));
+
+        // Marked set to false and web statement
+        assertFalse(image.getMetadata().getExtendedMetadata().isMarked());
+        assertEquals("http://perdu.com", image.getMetadata().getExtendedMetadata().getWebStatement());
         
         // Check the IPTC and XMP generation
         Assert.assertNotNull(image.getMetadata().getExtendedMetadata().getPhotoshopApp13Data());
@@ -224,6 +228,12 @@ public class ExtendedMetadataTest {
 
         origin.getMetadata().getExtendedMetadata().setCreationDate("02112011");
 
+        // Set source
+        origin.getMetadata().getExtendedMetadata().setSource("my source is beautiful");
+
+        // Set web statement
+        origin.getMetadata().getExtendedMetadata().setWebStatement("http://google.com");
+
         File out = new File(dir, "testExtendedMetadataUpdate.jpg");
         origin.write(out);
 
@@ -270,6 +280,12 @@ public class ExtendedMetadataTest {
         assertTrue(copy.getMetadata().getExtendedMetadata().getKeywords().contains("test"));
         assertFalse(copy.getMetadata().getExtendedMetadata().getKeywords().contains("noir"));
         assertTrue(copy.getMetadata().getExtendedMetadata().getKeywords().contains("bren"));
+
+        assertEquals("my source is beautiful", copy.getMetadata().getExtendedMetadata().getSource());
+        assertTrue(copy.getMetadata().getExtendedMetadata().isMarked());
+        assertEquals("http://google.com", copy.getMetadata().getExtendedMetadata().getWebStatement());
+        
+        System.out.println(copy.getMetadata().getXmp());
     }
 
     /**
@@ -461,6 +477,12 @@ public class ExtendedMetadataTest {
         origin.getMetadata().getExtendedMetadata().setCreationDate("02112011");
         origin.getMetadata().getExtendedMetadata().setKeywords(Arrays.asList("bois", "noir"));
 
+        // Set source
+        origin.getMetadata().getExtendedMetadata().setSource("my source is beautiful");
+
+        // Set web statement
+        origin.getMetadata().getExtendedMetadata().setWebStatement("http://google.com");
+
         File out = new File(dir, "testExtendedMetadataUpdateOnPNG.png");
         origin.write(out);
         Image copy = new Image(out);
@@ -495,6 +517,10 @@ public class ExtendedMetadataTest {
 
         assertTrue(copy.getMetadata().getKeywords().contains("bois"));
         assertTrue(copy.getMetadata().getExtendedMetadata().getKeywords().contains("bois"));
+
+        assertEquals("my source is beautiful", copy.getMetadata().getExtendedMetadata().getSource());
+        assertTrue(copy.getMetadata().getExtendedMetadata().isMarked());
+        assertEquals("http://google.com", copy.getMetadata().getExtendedMetadata().getWebStatement());
 
     }
 
