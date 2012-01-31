@@ -119,6 +119,14 @@ public class XMPMetadata {
                 metadata.setEditor(editor);
             }
 
+            if (meta.doesStructFieldExist(XMPConst.NS_IPTCCORE, "CreatorContactInfo", XMPConst.NS_IPTCCORE, "CiEmailWork")
+                && meta.getStructField(XMPConst.NS_IPTCCORE, "CreatorContactInfo", XMPConst.NS_IPTCCORE, "CiEmailWork").getValue() != null) {
+                String contact = meta
+                        .getStructField(XMPConst.NS_IPTCCORE, "CreatorContactInfo", XMPConst.NS_IPTCCORE, "CiEmailWork")
+                        .getValue().toString();
+                metadata.setContact(contact);
+            }
+
         } catch (XMPException e) {
             throw new IOException("Can't parse XMP metadata", e);
         }
@@ -223,9 +231,24 @@ public class XMPMetadata {
             if (metadata.getEditor() != null) {
                 meta.setProperty(XMPConst.NS_PHOTOSHOP, "CaptionWriter", metadata.getEditor());
             }
+            /**
+             * if (meta.doesStructFieldExist(XMPConst.NS_IPTCCORE, "CreatorContactInfo", XMPConst.NS_IPTCCORE, "CiEmailWork")
+             && meta.getStructField(XMPConst.NS_IPTCCORE, "CreatorContactInfo", XMPConst.NS_IPTCCORE, "CiEmailWork").getValue() != null) {
+             String contact = meta
+             .getStructField(XMPConst.NS_IPTCCORE, "CreatorContactInfo", XMPConst.NS_IPTCCORE, "CiEmailWork")
+             .getValue().toString();
+             metadata.setContact(contact);
+             }
+             */
+            if (metadata.getContact() != null) {
+                if (! meta.doesStructFieldExist(XMPConst.NS_IPTCCORE, "CreatorContactInfo", XMPConst.NS_IPTCCORE, "CiEmailWork")) {
+                    PropertyOptions struct = new PropertyOptions();
+                    struct.setStruct(true);
+                    meta.setProperty(XMPConst.NS_IPTCCORE, "CreatorContactInfo", null, struct);
+                }
+                meta.setStructField(XMPConst.NS_IPTCCORE, "CreatorContactInfo", XMPConst.NS_IPTCCORE, "CiEmailWork", metadata.getContact());
+            }
 
-
-            // TODO Support others metadata (City, Country ...)
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             XMPMetaFactory.serialize(meta, out);
             return new String(out.toByteArray());

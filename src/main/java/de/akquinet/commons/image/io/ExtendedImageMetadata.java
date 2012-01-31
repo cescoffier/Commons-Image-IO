@@ -15,6 +15,8 @@ public class ExtendedImageMetadata {
     private String m_title;
     
     private String m_author;
+
+    private String m_contact;
     
     private String m_extendedAuthor;
     
@@ -202,4 +204,11 @@ public class ExtendedImageMetadata {
         return m_iptc.getPhotoshopApp13Data(this);
     }
 
+    public void setContact(String contact) {
+        this.m_contact = contact;
+    }
+    
+    public String getContact() {
+        return m_contact;
+    }
 }

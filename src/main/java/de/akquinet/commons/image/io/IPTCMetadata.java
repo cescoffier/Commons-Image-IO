@@ -43,6 +43,7 @@ public class IPTCMetadata {
             metadata.setUsage(getValue(IPTCConstants.IPTC_TYPE_SPECIAL_INSTRUCTIONS));
             metadata.setSource(getValue(IPTCConstants.IPTC_TYPE_SOURCE));
             metadata.setCreationDate(getValue(IPTCConstants.IPTC_TYPE_DATE_CREATED));
+            metadata.setContact(getValue(IPTCConstants.IPTC_TYPE_CONTACT));
 
         } else {
             m_photoshopApp13Data = null;
@@ -71,6 +72,7 @@ public class IPTCMetadata {
         setRecord(records, IPTCConstants.IPTC_TYPE_DATE_CREATED, metadata.getCreationDate());
         setRecord(records, IPTCConstants.IPTC_TYPE_SOURCE, metadata.getSource());
         setRecords(records, IPTCConstants.IPTC_TYPE_KEYWORDS, metadata.getKeywords());
+        setRecord(records, IPTCConstants.IPTC_TYPE_CONTACT, metadata.getContact());
 
         PhotoshopApp13Data data = null;
         if (m_photoshopApp13Data != null) {

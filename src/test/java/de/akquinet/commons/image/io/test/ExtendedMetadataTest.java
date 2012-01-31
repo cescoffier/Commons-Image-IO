@@ -99,10 +99,14 @@ public class ExtendedMetadataTest {
         assertFalse(image.getMetadata().getExtendedMetadata().isMarked());
         assertEquals("http://perdu.com", image.getMetadata().getExtendedMetadata().getWebStatement());
         
+        // Contact and Source
+        Assert.assertEquals("clement.escoffier@gmail.com", image.getMetadata().getExtendedMetadata().getContact());
+        Assert.assertEquals("my camera", image.getMetadata().getExtendedMetadata().getSource());
+        
         // Check the IPTC and XMP generation
         Assert.assertNotNull(image.getMetadata().getExtendedMetadata().getPhotoshopApp13Data());
         Assert.assertNotNull(image.getMetadata().getExtendedMetadata().getXMPMetadata());
-        
+
         // Write the file
         File out = new File(dir, "testExtendedMetadata.jpg");
         image.write(out);
@@ -153,9 +157,15 @@ public class ExtendedMetadataTest {
         assertTrue(image.getMetadata().getKeywords().contains("noir"));
         assertTrue(image.getMetadata().getKeywords().contains("bren"));
 
+        // Contact and Source
+        Assert.assertEquals("clement.escoffier@gmail.com", image.getMetadata().getExtendedMetadata().getContact());
+        Assert.assertEquals("my camera", image.getMetadata().getExtendedMetadata().getSource());
+
         // Check the IPTC and XMP generation
         Assert.assertNotNull(image.getMetadata().getExtendedMetadata().getPhotoshopApp13Data());
         Assert.assertNotNull(image.getMetadata().getExtendedMetadata().getXMPMetadata());
+        
+
     }
 
     /**
@@ -234,6 +244,9 @@ public class ExtendedMetadataTest {
         // Set web statement
         origin.getMetadata().getExtendedMetadata().setWebStatement("http://google.com");
 
+        // Contact
+        origin.getMetadata().getExtendedMetadata().setContact("me@me.com");
+
         File out = new File(dir, "testExtendedMetadataUpdate.jpg");
         origin.write(out);
 
@@ -284,6 +297,7 @@ public class ExtendedMetadataTest {
         assertEquals("my source is beautiful", copy.getMetadata().getExtendedMetadata().getSource());
         assertTrue(copy.getMetadata().getExtendedMetadata().isMarked());
         assertEquals("http://google.com", copy.getMetadata().getExtendedMetadata().getWebStatement());
+        assertEquals("me@me.com", copy.getMetadata().getExtendedMetadata().getContact());
         
         System.out.println(copy.getMetadata().getXmp());
     }
@@ -354,6 +368,10 @@ public class ExtendedMetadataTest {
 
         origin.getMetadata().getExtendedMetadata().setCreationDate("02112011");
 
+        // Contact and Source
+        origin.getMetadata().getExtendedMetadata().setSource("from here");
+        origin.getMetadata().getExtendedMetadata().setContact("me@me.com");
+
         File out = new File(dir, "testSettingExtendedMetadataOnAJPEGFileWithoutMetadata.jpg");
         origin.write(out);
 
@@ -398,6 +416,10 @@ public class ExtendedMetadataTest {
         
         // Check that we still have the EXIF metadata
         assertNotNull(copy.getMetadata().getLocation());
+
+        // Source and Contact
+        assertEquals("me@me.com", copy.getMetadata().getExtendedMetadata().getContact());
+        assertEquals("from here", copy.getMetadata().getExtendedMetadata().getSource());
     }
 
     /**
@@ -626,6 +648,8 @@ public class ExtendedMetadataTest {
         File file = new File("src/test/resources/png/XMP-Logo-with-XMP_Metadata.png");
         Image origin = new Image(file);
         origin.getMetadata().getExtendedMetadata().setDescription("XMP Logo");
+        origin.getMetadata().getExtendedMetadata().setSource("xmp.org");
+        origin.getMetadata().getExtendedMetadata().setContact("me@xmp.org");
         File out = new File(dir, "testCopyingPNGContainingXMP.png");
         origin.write(out);
 
@@ -635,6 +659,8 @@ public class ExtendedMetadataTest {
         assertTrue(copy.getMetadata().getKeywords().contains("XMP,logo"));
         assertEquals("XMP", copy.getMetadata().getExtendedMetadata().getAuthor());
         assertEquals("XMP Logo", copy.getMetadata().getExtendedMetadata().getDescription());
+        assertEquals("xmp.org", copy.getMetadata().getExtendedMetadata().getSource());
+        assertEquals("me@xmp.org", copy.getMetadata().getExtendedMetadata().getContact());
     }
     
     @Test
