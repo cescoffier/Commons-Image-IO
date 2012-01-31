@@ -423,8 +423,14 @@ public class IPTCParser extends BinaryFileParser implements IPTCConstants
             {
                 IPTCRecord element = (IPTCRecord) elements.get(i);
 
-                if (element.iptcType.type == IPTC_TYPE_RECORD_VERSION.type)
+                if (element.iptcType.type == IPTC_TYPE_RECORD_VERSION.type) {
                     continue; // ignore
+                }
+
+                if (element.value == null) {
+                    System.err.println("No value for " + element.iptcType.name);
+                    continue;
+                }
 
                 bos.write(IPTC_RECORD_TAG_MARKER);
                 bos.write(IPTC_APPLICATION_2_RECORD_NUMBER);
@@ -433,6 +439,7 @@ public class IPTCParser extends BinaryFileParser implements IPTCConstants
                             + element.iptcType.type);
                 bos.write(element.iptcType.type);
 
+                
                 byte recordData[] = element.value.getBytes("ISO-8859-1");
                 if (!new String(recordData, "ISO-8859-1").equals(element.value))
                     throw new ImageWriteException(
