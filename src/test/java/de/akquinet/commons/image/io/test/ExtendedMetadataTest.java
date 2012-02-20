@@ -706,4 +706,38 @@ public class ExtendedMetadataTest {
         Assert.assertEquals(xmp, xmpXml);
     }
 
+    /**
+     * Tests the insertion of new metadata inside a file without metadata.
+     * Note: The inserted metadata have nothing to do with the actual edited image.
+     * @throws IOException
+     */
+    @Test
+    public void testSettingExtendedMetadataOnAJPEGFileWithStrangeCharacters() throws  IOException {
+        File file = new File("src/test/resources/jpg/flore.JPG");
+        Image origin = new Image(file);
+
+        // update metadata
+        List<String> keywords = origin.getMetadata().getKeywords();
+        // No metadata
+        Assert.assertNull(keywords);
+        keywords = new ArrayList<String>();
+        keywords.add("üîé");
+        origin.getMetadata().getExtendedMetadata().setKeywords(keywords);
+
+        origin.getMetadata().getExtendedMetadata().setAuthor("∫ßåø");
+
+
+        File out = new File(dir, "testSettingExtendedMetadataOnAJPEGFileWithStrangeCharacters.jpg");
+        origin.write(out);
+
+        Image copy = new Image(out);
+        IPTCMetadata iptc = copy.getMetadata().getIPTCMetadata();
+        assertNotNull(iptc);
+
+        assertEquals("∫ßåø", copy.getMetadata().getExtendedMetadata().getAuthor());
+
+        assertTrue(copy.getMetadata().getKeywords().contains("üîé"));
+        assertFalse(copy.getMetadata().getKeywords().contains("noir"));
+    }
+
 }

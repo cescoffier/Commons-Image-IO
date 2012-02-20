@@ -439,11 +439,13 @@ public class IPTCParser extends BinaryFileParser implements IPTCConstants
                             + element.iptcType.type);
                 bos.write(element.iptcType.type);
 
-                
                 byte recordData[] = element.value.getBytes("ISO-8859-1");
-                if (!new String(recordData, "ISO-8859-1").equals(element.value))
-                    throw new ImageWriteException(
-                            "Invalid record value, not ISO-8859-1");
+
+                // Avoid encoding detection.
+//                if (!new String(recordData, "ISO-8859-1").equals(element.value)) {
+//                    throw new ImageWriteException(
+//                            "Invalid record value " + element.getIptcTypeName() + ", not ISO-8859-1");
+//                }
 
                 bos.write2Bytes(recordData.length);
                 bos.write(recordData);
