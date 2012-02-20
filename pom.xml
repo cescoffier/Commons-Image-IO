@@ -23,9 +23,9 @@
         </license>
     </licenses>
     <scm>
-        <connection>scm:git:git@edge.spree.de:ats-bilderverwaltung/commons-image-io.git</connection>
-        <developerConnection>scm:git:git@edge.spree.de:ats-bilderverwaltung/commons-image-io.git</developerConnection>
-        <url>git@edge.spree.de:ats-bilderverwaltung/commons-image-io.git</url>
+        <connection>scm:git:http://edge.spree.de/gitblit/git/bilderverwaltung/commons-image-io.git</connection>
+        <developerConnection>scm:git:http://edge.spree.de/gitblit/git/bilderverwaltung/commons-image-io.git</developerConnection>
+        <url>http://edge.spree.de/gitblit/summary/?r=bilderverwaltung/commons-image-io.git</url>
     </scm>
     <organization>
         <name>akquinet tech@spree</name>
