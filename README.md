@@ -5,9 +5,9 @@ Commons-Image-IO is a simple library to manage image in Java.
 
 Objectives
 ----------
-The objective of this library is to reduce the boilerplate code required to manipulate images in Java. Despite image manipulation is supported by java using the {{image.io}} extension, the proposed API is quite cumbersome. On the other side, Apache Commons Sanselan already provides a library to manipulate images, but as for image io, the API is far from being easy and a lot of features such as rotation, scaling are missing. Moreover, Sanselan is a dead project.
+The objective of this library is to reduce the boilerplate code required to manipulate images in Java. Despite image manipulation is supported by java using the _image.io_ extension, the proposed API is quite cumbersome. On the other side, Apache Commons Sanselan already provides a library to manipulate images, but as for image io, the API is far from being easy and a lot of features such as rotation, scaling are missing. Moreover, Sanselan is a dead project.
 
-So the goal os this library is to reduce the complexity of manipulating images in Java by providing a high level API on the top of {{image io}} and {{sanselan}}.
+So the goal os this library is to reduce the complexity of manipulating images in Java by providing a high level API on the top of _image io_ and _sanselan_.
 
 Features
 --------
@@ -55,7 +55,7 @@ Documentation
     Image img3 = new Image(myBytes);
 
 
-The library determined automatically the format of the image. It can also wraps a {{BufferedImage}}. However, the format must be specified:
+The library determined automatically the format of the image. It can also wraps a _BufferedImage_. However, the format must be specified:
 
 
     Image img4 = new Image(myBufferedImage, Format.PNG)
@@ -258,7 +258,7 @@ The manipulation helper class also provides methods to flip images:
 Using Helper objects
 --------------------
 
-If you don't want to use the Image class, you can use helper objects directly. The {{de.akquinet.commons.image.io.ImageIOUtils}} class allows getting helper objects:
+If you don't want to use the Image class, you can use helper objects directly. The _de.akquinet.commons.image.io.ImageIOUtils_ class allows getting helper objects:
 
 * getIOHelper()
 * getScaleHelper()
