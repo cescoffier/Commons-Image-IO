@@ -2,6 +2,7 @@ package de.akquinet.commons.image.io.test;
 
 import de.akquinet.commons.image.io.Format;
 import de.akquinet.commons.image.io.IOHelper;
+import de.akquinet.commons.image.io.Image;
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -190,6 +191,13 @@ public class ReadAndWriteTest {
         Assert.assertNotNull(copy);
         Assert.assertEquals(GIF_HEIGHT, copy.getHeight());
         Assert.assertEquals(GIF_WIDTH, copy.getWidth());
+    }
+    
+    @Test
+    public void testJBOSSImage() throws IOException {
+        File file = new File("src/test/resources/jpg/JBBusPremierLogo.jpg");
+        Image image = new Image(file);
+        image.getMetadata();
     }
 
     private byte[] getByteArrayForFile(File file) throws IOException {
