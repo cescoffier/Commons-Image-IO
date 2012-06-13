@@ -23,9 +23,9 @@
         </license>
     </licenses>
     <scm>
-        <connection>scm:git:http://edge.spree.de/gitblit/git/bilderverwaltung/commons-image-io.git</connection>
-        <developerConnection>scm:git:http://edge.spree.de/gitblit/git/bilderverwaltung/commons-image-io.git</developerConnection>
-        <url>http://edge.spree.de/gitblit/summary/?r=bilderverwaltung/commons-image-io.git</url>
+        <connection>scm:git:git@github.com:cescoffier/Commons-Image-IO.git</connection>
+        <developerConnection>scm:git:git@github.com:cescoffier/Commons-Image-IO.git</developerConnection>
+        <url>https://github.com/cescoffier/Commons-Image-IO</url>
     </scm>
     <organization>
         <name>akquinet tech@spree</name>
@@ -147,7 +147,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-sanselan</artifactId>
-            <version>0.98.20110623</version>
+            <version>0.98-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
