@@ -7,7 +7,7 @@ Objectives
 ----------
 The objective of this library is to reduce the boilerplate code required to manipulate images in Java. Despite image manipulation is supported by java using the _image.io_ extension, the proposed API is quite cumbersome. On the other side, Apache Commons Sanselan already provides a library to manipulate images, but as for image io, the API is far from being easy and a lot of features such as rotation, scaling are missing. Moreover, Sanselan is a dead project.
 
-So the goal os this library is to reduce the complexity of manipulating images in Java by providing a high level API on the top of _image io_ and _sanselan_.
+So the goal os this library is to reduce the complexity of manipulating images in Java by providing a high level API on the top of _image io_ and _Apache Commons Imaging_.
 
 Features
 --------
