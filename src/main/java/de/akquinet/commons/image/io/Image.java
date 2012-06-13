@@ -6,9 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.sanselan.ImageWriteException;
-import org.apache.sanselan.formats.png.PngConstants;
-import org.apache.sanselan.formats.png.PngWriter;
+import org.apache.commons.imaging.ImageWriteException;
+import org.apache.commons.imaging.formats.png.PngConstants;
+import org.apache.commons.imaging.formats.png.PngWriter;
 
 /**
  * The {@link Image} class represents pictures and provides

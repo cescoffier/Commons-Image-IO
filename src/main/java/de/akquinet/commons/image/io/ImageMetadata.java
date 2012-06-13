@@ -6,20 +6,20 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import org.apache.sanselan.ImageInfo;
-import org.apache.sanselan.ImageReadException;
-import org.apache.sanselan.Sanselan;
-import org.apache.sanselan.common.IImageMetadata;
-import org.apache.sanselan.common.ImageMetadata.Item;
-import org.apache.sanselan.common.byteSources.ByteSource;
-import org.apache.sanselan.common.byteSources.ByteSourceArray;
-import org.apache.sanselan.common.byteSources.ByteSourceFile;
-import org.apache.sanselan.formats.jpeg.JpegImageMetadata;
-import org.apache.sanselan.formats.jpeg.JpegImageParser;
-import org.apache.sanselan.formats.jpeg.iptc.IPTCConstants;
-import org.apache.sanselan.formats.png.PngImageParser;
-import org.apache.sanselan.formats.tiff.TiffImageMetadata;
-import org.apache.sanselan.formats.tiff.TiffImageMetadata.GPSInfo;
+import org.apache.commons.imaging.ImageInfo;
+import org.apache.commons.imaging.ImageReadException;
+import org.apache.commons.imaging.Imaging;
+import org.apache.commons.imaging.common.IImageMetadata;
+import org.apache.commons.imaging.common.bytesource.ByteSource;
+import org.apache.commons.imaging.common.bytesource.ByteSourceArray;
+import org.apache.commons.imaging.common.bytesource.ByteSourceFile;
+import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
+import org.apache.commons.imaging.formats.jpeg.JpegImageParser;
+import org.apache.commons.imaging.formats.jpeg.iptc.IptcTypes;
+import org.apache.commons.imaging.formats.png.PngImageParser;
+import org.apache.commons.imaging.formats.tiff.TiffField;
+import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
+import org.apache.commons.imaging.formats.tiff.TiffImageMetadata.GPSInfo;
 
 /**
  * Classes representing image metadata. This class is also responsible
@@ -79,10 +79,10 @@ public class ImageMetadata {
         try {
             if (image.getFile() == null || !image.getFile().exists()) {
                 source = new ByteSourceArray(image.getRawBytes());
-                info = Sanselan.getImageInfo(((ByteSourceArray) source).getAll());
+                info = Imaging.getImageInfo(((ByteSourceArray) source).getAll());
             } else {
                 source = new ByteSourceFile(image.getFile());
-                info = Sanselan.getImageInfo(image.getFile());
+                info = Imaging.getImageInfo(image.getFile());
             }
         } catch (ImageReadException e) {
             throw new IOException(e);
@@ -125,19 +125,23 @@ public class ImageMetadata {
             JpegImageParser parser = new JpegImageParser();
 
             String xmp = null;
-            IImageMetadata metadata = null;
+            JpegImageMetadata metadata = null;
             try {
                 xmp = parser.getXmpXml(source, null);
-                metadata = parser.getMetadata(source);
+                // We can cast as we're sure we're parsing a JPEG file.
+                metadata = (JpegImageMetadata) parser.getMetadata(source);
             } catch (ImageReadException e) {
                 throw new IOException(e);
             }
 
             if (metadata != null) {
                 // Extract Exif.
-                List<Item> items = metadata.getItems();
-                for (Item i : items) {
-                    m_metadata.put(i.getKeyword(), i.getText());
+                TiffImageMetadata exif = metadata.getExif();
+                if (exif != null) {
+                    List<TiffField> fields = exif.getAllFields();
+                    for (TiffField field : fields) {
+                        m_metadata.put(field.getTagName(), field.getValueDescription());
+                    }
                 }
                 // Geolocalisation is processed differently
                 m_location = extractLocation(metadata);
@@ -400,7 +404,11 @@ public class ImageMetadata {
      *         or if the date cannot be parsed.
      */
     public Date getCreationDate() {
-        String d = m_metadata.get("Create Date");
+        String d = m_metadata.get("Date Time");
+
+        if (d == null) {
+            d = m_metadata.get("Create Date");
+        }
 
         if (d == null) {
             d = m_metadata.get("Modify Date");
@@ -452,7 +460,7 @@ public class ImageMetadata {
      *         or from the image dimension.
      */
     public Orientation getOrientation() {
-        String iptc = m_extended.getIPTC().getValue(IPTCConstants.IPTC_TYPE_IMAGE_ORIENTATION);
+        String iptc = m_extended.getIPTC().getValue(IptcTypes.IMAGE_ORIENTATION);
         if (iptc == null) {
             return Orientation.getOrientationFromDimension(getWidth(), getHeight());
         } else {

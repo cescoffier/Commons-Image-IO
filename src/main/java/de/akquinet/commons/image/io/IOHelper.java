@@ -1,9 +1,10 @@
 package de.akquinet.commons.image.io;
 
-import org.apache.sanselan.ImageFormat;
-import org.apache.sanselan.ImageReadException;
-import org.apache.sanselan.ImageWriteException;
-import org.apache.sanselan.Sanselan;
+import org.apache.commons.imaging.ImageFormat;
+import org.apache.commons.imaging.ImageReadException;
+import org.apache.commons.imaging.ImageWriteException;
+import org.apache.commons.imaging.Imaging;
+import org.apache.commons.imaging.Imaging;
 
 import java.awt.color.CMMException;
 import java.awt.image.BufferedImage;
@@ -42,19 +43,19 @@ public class IOHelper {
             // Try image io
             return ImageIO.read(f);
         } catch (IOException e) {
-            // Ignore, will fall back to Sanselan
+            // Ignore, will fall back to Imaging
         } catch (CMMException e) {
             // CMMException is a runtime exception
-            // Ignore, will fall back to Sanselan
+            // Ignore, will fall back to Imaging
         } catch (IllegalArgumentException e) {
             // IllegalArgumentException is thrown when there is an issue with the raster:
             // Numbers of source Raster bands and source color space components do not match
-            // Ignore, will fall back to Sanselan
+            // Ignore, will fall back to Imaging
         }
 
-        // As a fall back use Sanselan
+        // As a fall back use Imaging
         try {
-            return Sanselan.getBufferedImage(f);
+            return Imaging.getBufferedImage(f);
         } catch (ImageReadException e) {
             // Both failed.
             throw new IOException("Cannot read image " + f.getAbsolutePath(), e);
@@ -79,11 +80,11 @@ public class IOHelper {
         try {
             return ImageIO.read(is);
         } catch (IOException e) {
-            // Ignore, will try Sanselan.
+            // Ignore, will try Imaging.
         }
 
         try {
-            return Sanselan.getBufferedImage(is);
+            return Imaging.getBufferedImage(is);
         } catch (ImageReadException e) {
             // Both failed.
             throw new IOException("Cannot read image from byte array", e);
@@ -106,7 +107,7 @@ public class IOHelper {
         InputStream is = new ByteArrayInputStream(bytes);
 
         try {
-            BufferedImage img = Sanselan.getBufferedImage(bytes);
+            BufferedImage img = Imaging.getBufferedImage(bytes);
             return img;
         } catch (ImageReadException e) {
             // As a fall back use the Image-IO
@@ -241,7 +242,7 @@ public class IOHelper {
      */
     public void write(BufferedImage image, File file, Format format) throws IOException {
         try {
-            Sanselan.writeImage(image, file, Format.getSanselanImageFormat(format), null);
+            Imaging.writeImage(image, file, Format.getImagingImageFormat(format), null);
         } catch (ImageWriteException e) {
             // Fallback to image-io
             ImageWriter writer = getWriterForFormat(format);

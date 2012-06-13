@@ -245,7 +245,7 @@ public class ImageMetadataTest {
         Assert.assertEquals(Orientation.LANDSCAPE, metadata.getOrientation());
 
         // Misc details
-        Assert.assertEquals(21, metadata.getBitsPerPixel());
+        Assert.assertEquals(7, metadata.getBitsPerPixel());
 
         Assert.assertFalse(metadata.isProgressive());
         Assert.assertTrue(metadata.isTransparent());

@@ -1,6 +1,6 @@
 package de.akquinet.commons.image.io;
 
-import org.apache.sanselan.ImageFormat;
+import org.apache.commons.imaging.ImageFormat;
 
 import java.util.Arrays;
 import java.util.List;
@@ -67,8 +67,18 @@ public enum Format {
      * Gets the Sanselan ImageFormat object for the given Format object
      * @param format the format
      * @return the ImageFormat object
+     * @deprecated Sanselan became Imaging.
      */
     public static ImageFormat getSanselanImageFormat(Format format) {
+        return getImagingImageFormat(format);
+    }
+
+    /**
+     * Gets the Imaging ImageFormat object for the given Format object
+     * @param format the format
+     * @return the ImageFormat object
+     */
+    public static ImageFormat getImagingImageFormat(Format format) {
         switch (format) {
             case BMP:
                 return ImageFormat.IMAGE_FORMAT_BMP;

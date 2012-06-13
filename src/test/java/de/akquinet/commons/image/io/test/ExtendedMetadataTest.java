@@ -7,16 +7,16 @@ import com.adobe.xmp.XMPMeta;
 import com.adobe.xmp.XMPMetaFactory;
 import com.adobe.xmp.properties.XMPProperty;
 import de.akquinet.commons.image.io.*;
-import org.apache.sanselan.ImageReadException;
-import org.apache.sanselan.Sanselan;
-import org.apache.sanselan.common.byteSources.ByteSourceFile;
-import org.apache.sanselan.formats.jpeg.JpegImageMetadata;
-import org.apache.sanselan.formats.jpeg.JpegImageParser;
-import org.apache.sanselan.formats.jpeg.JpegPhotoshopMetadata;
-import org.apache.sanselan.formats.jpeg.iptc.IPTCRecord;
-import org.apache.sanselan.formats.png.PngConstants;
-import org.apache.sanselan.formats.png.PngImageParser;
-import org.apache.sanselan.formats.png.PngWriter;
+import org.apache.commons.imaging.ImageReadException;
+import org.apache.commons.imaging.Imaging;
+import org.apache.commons.imaging.common.bytesource.ByteSourceFile;
+import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
+import org.apache.commons.imaging.formats.jpeg.JpegImageParser;
+import org.apache.commons.imaging.formats.jpeg.JpegPhotoshopMetadata;
+import org.apache.commons.imaging.formats.jpeg.iptc.IptcRecord;
+import org.apache.commons.imaging.formats.png.PngConstants;
+import org.apache.commons.imaging.formats.png.PngImageParser;
+import org.apache.commons.imaging.formats.png.PngWriter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -310,8 +310,7 @@ public class ExtendedMetadataTest {
     @Test
     public void testIPTCExtractionOnJPEGFile() throws IOException, ImageReadException {
         File file = new File("src/test/resources/jpg/IMG_0467.jpg");
-        JpegImageMetadata metadata = (JpegImageMetadata) Sanselan
-                .getMetadata(file, null);
+        JpegImageMetadata metadata = (JpegImageMetadata) Imaging.getMetadata(file, null);
         assertNotNull(metadata);
         assertNotNull(metadata.getPhotoshop());
 
@@ -325,10 +324,10 @@ public class ExtendedMetadataTest {
 
         System.out.println();
         for (int j = 0; j < oldRecords.size(); j++) {
-            IPTCRecord record = (IPTCRecord) oldRecords.get(j);
+            IptcRecord record = (IptcRecord) oldRecords.get(j);
             //if (record.iptcType.type != IPTCConstants.IPTC_TYPE_CITY.type)
-            System.out.println("Key: " + record.iptcType.name + " (0x"
-                    + Integer.toHexString(record.iptcType.type)
+            System.out.println("Key: " + record.iptcType.getName() + " (0x"
+                    + Integer.toHexString(record.iptcType.getType())
                     + "), value: " + record.value);
         }
     }
@@ -460,8 +459,7 @@ public class ExtendedMetadataTest {
     @Test
     public void testXMPExtraction() throws IOException, ImageReadException {
         File file = new File("src/test/resources/jpg/IMG_0467.jpg");
-        JpegImageMetadata metadata = (JpegImageMetadata) Sanselan
-                .getMetadata(file, null);
+        JpegImageMetadata metadata = (JpegImageMetadata) Imaging.getMetadata(file, null);
         assertNotNull(metadata);
         assertNotNull(metadata.getPhotoshop());
 

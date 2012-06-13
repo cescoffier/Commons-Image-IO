@@ -1,7 +1,7 @@
 package de.akquinet.commons.image.io;
 
-import org.apache.sanselan.common.RationalNumber;
-import org.apache.sanselan.formats.tiff.TiffImageMetadata;
+import org.apache.commons.imaging.common.RationalNumber;
+import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
 
 /**
  * Class representing the location.

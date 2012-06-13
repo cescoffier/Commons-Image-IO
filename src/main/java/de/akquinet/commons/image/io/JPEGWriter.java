@@ -1,15 +1,15 @@
 package de.akquinet.commons.image.io;
 
-import org.apache.sanselan.ImageReadException;
-import org.apache.sanselan.ImageWriteException;
-import org.apache.sanselan.common.byteSources.ByteSource;
-import org.apache.sanselan.common.byteSources.ByteSourceArray;
-import org.apache.sanselan.common.byteSources.ByteSourceFile;
-import org.apache.sanselan.formats.jpeg.iptc.IPTCBlock;
-import org.apache.sanselan.formats.jpeg.iptc.IPTCConstants;
-import org.apache.sanselan.formats.jpeg.iptc.IPTCParser;
-import org.apache.sanselan.formats.jpeg.iptc.PhotoshopApp13Data;
-import org.apache.sanselan.formats.jpeg.xmp.JpegRewriter;
+import org.apache.commons.imaging.ImageReadException;
+import org.apache.commons.imaging.ImageWriteException;
+import org.apache.commons.imaging.common.bytesource.ByteSource;
+import org.apache.commons.imaging.common.bytesource.ByteSourceArray;
+import org.apache.commons.imaging.common.bytesource.ByteSourceFile;
+import org.apache.commons.imaging.formats.jpeg.iptc.IptcBlock;
+import org.apache.commons.imaging.formats.jpeg.iptc.IptcConstants;
+import org.apache.commons.imaging.formats.jpeg.iptc.IptcParser;
+import org.apache.commons.imaging.formats.jpeg.iptc.PhotoshopApp13Data;
+import org.apache.commons.imaging.formats.jpeg.xmp.JpegRewriter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -48,18 +48,18 @@ public class JPEGWriter extends JpegRewriter {
 
         // discard old iptc blocks.
         List newBlocks = newIPTC.getNonIptcBlocks();
-        byte[] newBlockBytes = new IPTCParser().writeIPTCBlock(newIPTC
+        byte[] newBlockBytes = new IptcParser().writeIPTCBlock(newIPTC
                 .getRecords());
 
-        int blockType = IPTCConstants.IMAGE_RESOURCE_BLOCK_IPTC_DATA;
+        int blockType = IptcConstants.IMAGE_RESOURCE_BLOCK_IPTC_DATA;
         byte[] blockNameBytes = new byte[0];
-        IPTCBlock newBlock = new IPTCBlock(blockType, blockNameBytes,
+        IptcBlock newBlock = new IptcBlock(blockType, blockNameBytes,
                 newBlockBytes);
         newBlocks.add(newBlock);
 
         newIPTC = new PhotoshopApp13Data(newIPTC.getRecords(), newBlocks);
 
-        byte segmentBytes[] = new IPTCParser()
+        byte segmentBytes[] = new IptcParser()
                 .writePhotoshopApp13Segment(newIPTC);
         JFIFPieceSegment newSegment = new JFIFPieceSegment(
                 JPEG_APP13_Marker, segmentBytes);
@@ -161,7 +161,7 @@ public class JPEGWriter extends JpegRewriter {
     {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 
-        os.write(XMP_IDENTIFIER);
+        os.write(XMP_IDENTIFIER.toByteArray());
         os.write(xmpXmlData, start, length);
 
         return os.toByteArray();

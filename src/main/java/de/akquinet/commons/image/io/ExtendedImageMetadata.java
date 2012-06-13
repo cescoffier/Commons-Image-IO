@@ -1,8 +1,7 @@
 package de.akquinet.commons.image.io;
 
-import org.apache.sanselan.formats.jpeg.JpegImageMetadata;
-import org.apache.sanselan.formats.jpeg.iptc.IPTCConstants;
-import org.apache.sanselan.formats.jpeg.iptc.PhotoshopApp13Data;
+import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
+import org.apache.commons.imaging.formats.jpeg.iptc.PhotoshopApp13Data;
 
 import java.io.IOException;
 import java.util.List;
