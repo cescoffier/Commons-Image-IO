@@ -193,13 +193,6 @@ public class ReadAndWriteTest {
         Assert.assertEquals(GIF_WIDTH, copy.getWidth());
     }
     
-    @Test
-    public void testJBOSSImage() throws IOException {
-        File file = new File("src/test/resources/jpg/JBBusPremierLogo.jpg");
-        Image image = new Image(file);
-        image.getMetadata();
-    }
-
     private byte[] getByteArrayForFile(File file) throws IOException {
         return FileUtils.readFileToByteArray(file);
     }
